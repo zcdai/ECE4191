@@ -4,7 +4,7 @@ import json
 import os
 import ast
 import cv2
-from YOLO.detector import Detector
+from Detector import Detector
 import math
 
 
@@ -32,7 +32,7 @@ def estimate_pose(camera_matrix, obj_info, robot_pose):
     """
     # read in camera matrix (from camera calibration results)
     focal_length = camera_matrix[0][0]
-
+    robot_pose = [0,0,0]
     # there are 8 possible types of fruits and vegs
     ######### Replace with your codes #########
     # TODO: measure actual sizes of targets [width, depth, height] and update the dictionary of true target dimensions
@@ -57,15 +57,55 @@ def estimate_pose(camera_matrix, obj_info, robot_pose):
     x_relative = distance_obj * np.cos(theta) # relative x pose
     y_relative = distance_obj * np.sin(theta) # relative y pose
     relative_pose = {'x': x_relative, 'y': y_relative}
-    print(f'relative_pose: {relative_pose}')
 
     # location of object in the world frame using rotation matrix
     delta_x_world = x_relative * np.cos(ang) - y_relative * np.sin(ang)
     delta_y_world = x_relative * np.sin(ang) + y_relative * np.cos(ang)
     # add robot pose with delta target pose
-    target_pose = {'y': (robot_pose[1]+delta_y_world)[0],
-                   'x': (robot_pose[0]+delta_x_world)[0]}
+    #target_pose = {'y': (robot_pose[1]+delta_y_world)[0],
+                   #'x': (robot_pose[0]+delta_x_world)[0]}
     #print(f'delta_x_world: {delta_x_world}, delta_y_world: {delta_y_world}')
     #print(f'target_pose: {target_pose}')
 
-    return target_pose
+    return relative_pose
+
+if __name__ == "__main__":
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # Read in camera matrix
+    fileK = f'{script_dir}/Params/intrinsic.txt'
+    camera_matrix = np.loadtxt(fileK, delimiter=',')
+
+    # Initialize YOLO model
+    model_path = f'{script_dir}/YOLO/Model/best (1).pt'
+    yolo = Detector(model_path)
+
+    # Open video capture (0 for default camera)
+    cap = cv2.VideoCapture(1)
+
+    if not cap.isOpened():
+        print("Error: Could not open camera.")
+        exit()
+
+    try:
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                print("Error: Could not read frame.")
+                break
+
+            bounding_boxes, bbox_img = yolo.detect_single_image(frame)
+            robot_pose = [0, 0, 0]  # Assuming robot_pose is [x, y, theta], replace with actual robot pose if available
+
+            for detection in bounding_boxes:
+                target_pose = estimate_pose(camera_matrix, detection, robot_pose)
+                print(f"Detected {detection[0]} at {target_pose}")
+
+            cv2.imshow('Detected Objects', bbox_img)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+    except KeyboardInterrupt:
+        print("Interrupted by user.")
+    finally:
+        cap.release()
+        cv2.destroyAllWindows()
