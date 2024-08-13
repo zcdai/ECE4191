@@ -1,12 +1,12 @@
 import numpy as np
 
-
 class DriveCommand:
     # forward_speed: [0, 1], float
     # turn_speed: [-1, 1], float
     def __init__(self, forward_speed, turn_speed=0):
         self.forward_speed = forward_speed
         self.turn_speed = turn_speed
+
 
 class Position:
     def __init__(self, x, y):
@@ -33,15 +33,12 @@ class PenguinPi:
             return self.ball_pos.pop()
         except IndexError:
             return None
-        
-
 
     def set_angle(self, angle):
         if angle == self.angle:
             return
         angle_delta = angle - self.angle
         self.rotate(angle_delta)
-
         self.angle = angle
 
     def primitive_path(self, new_pos):
@@ -80,7 +77,6 @@ class PenguinPi:
         pass
 
     def probe(self):
-
         # skip if there are balls to path for
         if len(self.ball_pos) > 0:
             return
@@ -88,24 +84,23 @@ class PenguinPi:
         self.get_image()
 
         while len(self.ball_pos) == 0:
-            self.rotate(45) # TODO: find camera FOV and good rotation value
+            self.rotate(45)  # TODO: find camera FOV and good rotation value
             self.get_image()
 
     def check_contact(image):
         pass
-    # if ball is in pickup range
+        # if ball is in pickup range
 
     def check_valid_ball(image):
         pass
-    # if ball is on screen and close enough to go path to
-
+        # if ball is on screen and close enough to go path to
 
     def nav2ball(image):
         forward_speed = 0
         turn_speed = 0
         pass
         return DriveCommand(forward_speed, turn_speed)
-        # rotate bot to center the ball in the image, and appraoch using pid?
+        # rotate bot to center the ball in the image, and approach using pid?
 
     def pickup():
         pass
