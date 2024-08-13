@@ -50,11 +50,29 @@ class PenguinPi:
             self.set_angle(0)
             x_delta = new_pos.x - self.pos.x
             self.drive(x_delta)
+        else:
+            self.set_angle(180)
+            x_delta = self.pos.x - new_pos.x
+            self.drive(x_delta)
 
-        pass
+        if new_pos.y > self.pos.y:
+            self.set_angle(270)
+            y_delta = new_pos.y - self.pos.y
+            self.drive(y_delta)
+        else:
+            self.set_angle(90)
+            y_delta = self.pos.y - new_pos.y
+            self.drive(y_delta)
+
+        self.pos = new_pos
+
+    def return_to_origin(self):
+        self.primitive_path(Position(0, 0))
 
     def rotate(self, angle):
         # rotate the robot by angle degrees
+        # positive angle is CCW
+        # handle direction of turning in here
         pass
 
     def drive(self, distance):
@@ -62,9 +80,33 @@ class PenguinPi:
         pass
 
     def probe(self):
+
+        # skip if there are balls to path for
+        if len(self.ball_pos) > 0:
+            return
         # search for balls in vicinity
         self.get_image()
 
         while len(self.ball_pos) == 0:
             self.rotate(45) # TODO: find camera FOV and good rotation value
             self.get_image()
+
+    def check_contact(image):
+        pass
+    # if ball is in pickup range
+
+    def check_valid_ball(image):
+        pass
+    # if ball is on screen and close enough to go path to
+
+
+    def nav2ball(image):
+        forward_speed = 0
+        turn_speed = 0
+        pass
+        return DriveCommand(forward_speed, turn_speed)
+        # rotate bot to center the ball in the image, and appraoch using pid?
+
+    def pickup():
+        pass
+        # pickup the ball
