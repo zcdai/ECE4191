@@ -1,4 +1,4 @@
-from util.robot import DriveCommand
+from util.robot import DriveCommand, PenguinPi
 
 def check_contact(image):
     pass
@@ -7,7 +7,6 @@ def check_contact(image):
 def check_valid_ball(image):
     pass
     # if ball is on screen and close enough to go path to
-
 
 
 def nav2ball(image):
@@ -20,3 +19,10 @@ def nav2ball(image):
 def pickup():
     pass
     # pickup the ball
+
+
+def main():
+    bot = PenguinPi()
+    while True:
+        bot.probe() # search for balls in vicinity
+        bot.primitive_path(bot.ball_pos.pop()) # calculate the primitive path
