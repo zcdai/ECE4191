@@ -1,5 +1,4 @@
 import threading
-import numpy as np
 from comm import send_commands, stop_motors
 
 
@@ -76,7 +75,7 @@ class BallerRover:
         pass
 
     def drive(self, distance):
-        time_to_drive = 0 #TODO: calculate time to drive
+        time_to_drive = 2 #TODO: calculate time to drive
         send_commands(f"R{0.5}", f"L{0.5}")
         timer = threading.Timer(time_to_drive, stop_motors)
         timer.start()
