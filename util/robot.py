@@ -1,4 +1,7 @@
+import threading
 import numpy as np
+from comm import send_commands, stop_motors
+
 
 class DriveCommand:
     # forward_speed: [0, 1], float
@@ -73,8 +76,11 @@ class BallerRover:
         pass
 
     def drive(self, distance):
-        # drive forward set distance
-        pass
+        time_to_drive = 0 #TODO: calculate time to drive
+        send_commands(f"R{0.5}", f"L{0.5}")
+        timer = threading.Timer(time_to_drive, stop_motors)
+        timer.start()
+
 
     def probe(self):
         # skip if there are balls to path for
