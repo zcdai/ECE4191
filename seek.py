@@ -1,7 +1,7 @@
-from util.robot import PenguinPi
+from util.robot import BallerRover
 
 def main():
-    bot = PenguinPi()
+    bot = BallerRover()
     while True:
         bot.probe() # search for balls in vicinity
         bot.primitive_path(bot.ball_pos.pop()) # calculate the primitive path

@@ -15,7 +15,7 @@ class Position:
         self.y = y
 
 
-class PenguinPi:
+class BallerRover:
     def __init__(self):
         self.wheel_vel = [0, 0]
         self.pos = Position(0, 0)
