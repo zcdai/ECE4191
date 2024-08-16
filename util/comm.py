@@ -14,17 +14,13 @@ except Exception as e:
     exit()
 
 def stop_motors():
-    ser.write("R0".encode('utf-8'))
-    time.sleep(0.2)  # Short pause before sending the second stop command
+    ser.write("R0L0\n".encode('utf-8'))
     ser.flush()  # Ensure the buffer is clear
-    ser.write("L0".encode('utf-8'))
     print("Sent stop command: R0, L0")
 
 def send_commands(cmd1, cmd2):
-    ser.write(cmd1.encode('utf-8'))
-    time.sleep(0.2)  # Short pause before sending the second command
+    ser.write(f'{cmd1}{cmd2}\n'.encode('utf-8'))
     ser.flush()  # Ensure the buffer is clear
-    ser.write(cmd2.encode('utf-8'))
     print(f"Sent: {cmd1}, {cmd2}")
 
 def input_listener():

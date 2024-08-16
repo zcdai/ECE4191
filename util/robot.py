@@ -74,8 +74,8 @@ class BallerRover:
         # handle direction of turning in here
         pass
 
-    def drive(self, distance):
-        time_to_drive = 2 #TODO: calculate time to drive
+    def drive(self, distance=1):
+        time_to_drive = distance #TODO: calculate time to drive
         send_commands(f"R{0.5}", f"L{0.5}")
         timer = threading.Timer(time_to_drive, stop_motors)
         timer.start()

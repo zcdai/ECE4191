@@ -17,6 +17,13 @@ import util.robot as bot
 
 #         bot.return_to_origin()
 
+def test(bot):
+    while True:
+        user_input = input("Press any key to move forward, or 'q' to quit: ")
+        if user_input == 'q':
+            break
+        bot.drive(1)  # Go forward
+
 if __name__ == "__main__":
-    bot = bot.BallerRover()
-    bot.drive(2)
+    bot = BallerRover()
+    test(bot)
