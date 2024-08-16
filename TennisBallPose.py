@@ -62,12 +62,12 @@ def estimate_pose(camera_matrix, obj_info, robot_pose):
     delta_x_world = x_relative * np.cos(ang) - y_relative * np.sin(ang)
     delta_y_world = x_relative * np.sin(ang) + y_relative * np.cos(ang)
     # add robot pose with delta target pose
-    #target_pose = {'y': (robot_pose[1]+delta_y_world)[0],
-                   #'x': (robot_pose[0]+delta_x_world)[0]}
+    target_pose = {'y': (robot_pose[1]+delta_y_world),
+                   'x': (robot_pose[0]+delta_x_world)}
     #print(f'delta_x_world: {delta_x_world}, delta_y_world: {delta_y_world}')
     #print(f'target_pose: {target_pose}')
-
-    return relative_pose
+    
+    return target_pose
 
 if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -81,7 +81,7 @@ if __name__ == "__main__":
     yolo = Detector(model_path)
 
     # Open video capture (0 for default camera)
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
 
     if not cap.isOpened():
         print("Error: Could not open camera.")

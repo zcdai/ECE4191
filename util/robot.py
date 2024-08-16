@@ -1,4 +1,8 @@
 import numpy as np
+from Detector import Detector
+from TennisBallPose import estimate_pose
+import os
+import cv2
 
 class DriveCommand:
     # forward_speed: [0, 1], float
@@ -15,18 +19,48 @@ class Position:
         self.y = y
 
 
-class BallerRover:
+class BallerRover():
     def __init__(self):
         self.wheel_vel = [0, 0]
         self.pos = Position(0, 0)
         self.angle = 0
         self.ball_pos = []
 
+
     def get_image(self):
         # get image from camera and save positions of any balls
         # check if balls are a reasonable distance away (< hypotenuse of tennis quadrant)
         # maybe sort by distance? longest to shortest
-        pass
+
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+
+        # Read in camera matrix
+        fileK = f'{script_dir}/Params/intrinsic.txt'
+        camera_matrix = np.loadtxt(fileK, delimiter=',')
+
+        # Initialize YOLO model
+        model_path = f'{script_dir}/YOLO/Model/best (1).pt'
+        yolo = Detector(model_path)
+
+        # Open video capture (0 for default camera)
+        cap = cv2.VideoCapture(1)
+
+        # Capture a single image
+        ret, frame = cap.read()
+
+        cap.release() 
+
+        bounding_boxes, bbox_img = yolo.detect_single_image(frame)
+        robot_pose = np.append(self.pos, self.angle)
+
+        target_poses = []
+
+        for detection in bounding_boxes:
+            target_pose = estimate_pose(camera_matrix, detection, robot_pose)
+            print(f"Detected {detection[0]} at {target_pose}")
+            target_poses.append(target_pose)
+
+        return target_poses
 
     def get_closest_ball(self):
         try:
