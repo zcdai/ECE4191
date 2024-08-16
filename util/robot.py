@@ -3,6 +3,9 @@ from Detector import Detector
 from TennisBallPose import estimate_pose
 import os
 import cv2
+import threading
+from comm import send_commands, stop_motors
+
 
 class DriveCommand:
     # forward_speed: [0, 1], float
@@ -106,9 +109,12 @@ class BallerRover():
         # handle direction of turning in here
         pass
 
-    def drive(self, distance):
-        # drive forward set distance
-        pass
+    def drive(self, distance=1):
+        time_to_drive = distance #TODO: calculate time to drive
+        send_commands(f"R{0.5}", f"L{0.5}")
+        timer = threading.Timer(time_to_drive, stop_motors)
+        timer.start()
+
 
     def probe(self):
         # skip if there are balls to path for
