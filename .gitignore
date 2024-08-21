@@ -1,8 +1,3 @@
-__pycache__/Detector.cpython-311.pyc
-util/__pycache__/robot.cpython-310.pyc
-util/__pycache__/comm.cpython-310.pyc
 .venv
-__pycache__/Detector.cpython-311.pyc
-__pycache__/TennisBallPose.cpython-311.pyc
-__pycache__/Detector.cpython-311.pyc
-util/__pycache__/robot.cpython-311.pyc
+__pycache__
+util/__pycache__
