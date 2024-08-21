@@ -81,7 +81,7 @@ if __name__ == '__main__':
     yolo = Detector(f'{script_dir}/YOLO/Model/best (1).pt')
 
     # Open the video capture (0 is usually the default camera)
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
 
     if not cap.isOpened():
         print("Error: Could not open camera.")
