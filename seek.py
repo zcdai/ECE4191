@@ -22,7 +22,7 @@ def test(bot):
         user_input = input("Press any key to move forward, or 'q' to quit: ")
         if user_input == 'q':
             break
-        bot.drive(1)  # Go forward
+        bot.drive(1)
  
 if __name__ == "__main__":
     bot = BallerRover()
