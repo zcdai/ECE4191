@@ -110,10 +110,7 @@ class BallerRover():
         pass
 
     def drive(self, distance=1):
-        time_to_drive = distance #TODO: calculate time to drive
-        send_commands(f"R{0.5}", f"L{0.5}")
-        timer = threading.Timer(time_to_drive, stop_motors)
-        timer.start()
+        send_commands(f"F", f"{distance}")
 
 
     def probe(self):
