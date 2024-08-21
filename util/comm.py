@@ -4,7 +4,7 @@ import threading
 
 try:
     ser = serial.Serial(
-        port='/dev/ttyS0',
+        port='/dev/serial0',
         baudrate=9600,
         timeout=1
     )
