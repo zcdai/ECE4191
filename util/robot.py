@@ -1,10 +1,13 @@
 import numpy as np
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from Detector import Detector
 from TennisBallPose import estimate_pose
 import os
 import cv2
 import threading
-from comm import send_commands, stop_motors
+#from comm import send_commands, stop_motors
 
 
 class DriveCommand:
@@ -38,15 +41,15 @@ class BallerRover():
         script_dir = os.path.dirname(os.path.abspath(__file__))
 
         # Read in camera matrix
-        fileK = f'{script_dir}/Params/intrinsic.txt'
+        fileK = f'{script_dir}/../Params/intrinsic.txt'
         camera_matrix = np.loadtxt(fileK, delimiter=',')
 
         # Initialize YOLO model
-        model_path = f'{script_dir}/YOLO/Model/best (1).pt'
+        model_path = f'{script_dir}/../YOLO/Model/best (1).pt'
         yolo = Detector(model_path)
 
         # Open video capture (0 for default camera)
-        cap = cv2.VideoCapture(1)
+        cap = cv2.VideoCapture(0)
 
         # Capture a single image
         ret, frame = cap.read()
@@ -142,3 +145,8 @@ class BallerRover():
     def pickup():
         pass
         # pickup the ball
+
+if __name__ == "__main__":
+    r = BallerRover()
+    img = r.get_image()
+    print(img)
