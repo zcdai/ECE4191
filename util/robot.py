@@ -2,12 +2,12 @@ import numpy as np
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from Detector import Detector
-from TennisBallPose import estimate_pose
+# from Detector import Detector
+# from TennisBallPose import estimate_pose
 import os
 import cv2
 import threading
-#from comm import send_commands, stop_motors
+from comm import send_commands, stop_motors
 
 
 class DriveCommand:
@@ -109,11 +109,15 @@ class BallerRover():
     def rotate(self, angle):
         # rotate the robot by angle degrees
         # positive angle is CCW
-        # handle direction of turning in here
-        pass
+        constant = 0.528
+        if angle > 180:
+            angle = 360 - angle
+            self.drive('R', angle * constant)
+        else:
+            self.drive('L', angle * constant)
 
-    def drive(self, distance=1):
-        send_commands(f"F", f"{distance}")
+    def drive(self, direction, distance=1):
+        send_commands(f"{direction}", f"{distance}")
 
 
     def probe(self):
@@ -145,7 +149,7 @@ class BallerRover():
     def pickup():
         pass
         # pickup the ball
-
+        
 if __name__ == "__main__":
     r = BallerRover()
     img = r.get_image()

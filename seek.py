@@ -19,10 +19,12 @@ import util.robot as bot
 
 def test(bot):
     while True:
-        user_input = input("Press any key to move forward, or 'q' to quit: ")
+        direction = input("Enter the direction: ").upper()
+        distance = float(input("Enter the distance: "))
+        bot.drive(direction, distance)
+        user_input = input("Press any key to continue, or 'q' to quit: ")
         if user_input == 'q':
             break
-        bot.drive(1)
  
 if __name__ == "__main__":
     bot = BallerRover()
