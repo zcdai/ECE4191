@@ -109,9 +109,12 @@ class BallerRover():
     def rotate(self, angle):
         # rotate the robot by angle degrees
         # positive angle is CCW
-        # handle direction of turning in here
         constant = 0.528
-        pass
+        if angle > 180:
+            angle = 360 - angle
+            self.drive('R', angle * constant)
+        else:
+            self.drive('L', angle * constant)
 
     def drive(self, direction, distance=1):
         send_commands(f"{direction}", f"{distance}")
