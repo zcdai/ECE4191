@@ -67,7 +67,7 @@ class Detector:
             for box in boxes:
                 # bounding format in [x, y, width, height]
                 box_cord = box.xywh[0]
-
+                print(box_cord)
                 box_label = int(box.cls)  # class label of the box
 
                 bounding_boxes.append([prediction.names[(box_label)], np.asarray(box_cord)])
@@ -81,7 +81,7 @@ if __name__ == '__main__':
     yolo = Detector(f'{script_dir}/YOLO/Model/best (1).pt')
 
     # Open the video capture (0 is usually the default camera)
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
 
     if not cap.isOpened():
         print("Error: Could not open camera.")
@@ -103,6 +103,7 @@ if __name__ == '__main__':
 
         # Display the output with detected bounding boxes
         cv2.imshow('YOLO Detection', img_out)
+
 
         # Break the loop if 'q' is pressed
         if cv2.waitKey(1) & 0xFF == ord('q'):
