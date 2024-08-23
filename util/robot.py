@@ -2,35 +2,23 @@ import numpy as np
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-# from Detector import Detector
-# from TennisBallPose import estimate_pose
+from Detector import Detector
+from TennisBallPose import estimate_pose
 import os
 import cv2
 import threading
 from comm import send_commands, stop_motors
 
 
-class DriveCommand:
-    # forward_speed: [0, 1], float
-    # turn_speed: [-1, 1], float
-    def __init__(self, forward_speed, turn_speed=0):
-        self.forward_speed = forward_speed
-        self.turn_speed = turn_speed
-
-
-class Position:
-    def __init__(self, x, y):
-        # x is length deep, y is length lateral
-        self.x = x
-        self.y = y
-
 
 class BallerRover():
-    def __init__(self):
+    def __init__(self, radius):
         self.wheel_vel = [0, 0]
-        self.pos = Position(0, 0)
+        self.x = 0
+        self.y = 0
         self.angle = 0
         self.ball_pos = []
+        self.radius = radius
 
 
     def get_image(self):
@@ -57,7 +45,7 @@ class BallerRover():
         cap.release() 
 
         bounding_boxes, bbox_img = yolo.detect_single_image(frame)
-        robot_pose = np.append(self.pos, self.angle)
+        robot_pose = [self.x, self.y, self.angle]
 
         target_poses = []
 
@@ -78,8 +66,9 @@ class BallerRover():
         if angle == self.angle:
             return
         angle_delta = angle - self.angle
-        self.rotate(angle_delta)
+        self._rotate(angle_delta)
         self.angle = angle
+    
 
     def primitive_path(self, new_pos):
         # calculate the primitive path
@@ -106,7 +95,7 @@ class BallerRover():
     def return_to_origin(self):
         self.primitive_path(Position(0, 0))
 
-    def rotate(self, angle):
+    def _rotate(self, angle):
         # rotate the robot by angle degrees
         # positive angle is CCW
         constant = 0.528
@@ -115,6 +104,13 @@ class BallerRover():
             self.drive('R', angle * constant)
         else:
             self.drive('L', angle * constant)
+
+    def rotation_shift(self, direction, angle_delta):
+        origin_x, origin_y = self.x - self.radius*np.cos(self.angle), self.y - self.radius*np.sin(self.angle)
+        x_offset, y_offset = self.x - origin_x, self.y - origin_y
+        new_x = np.cos(angle_delta) * x_offset - np.sin(angle_delta) * y_offset
+        new_y = np.sin(angle_delta) * x_offset + np.cos(angle_delta) * y_offset
+
 
     def drive(self, direction, distance=1):
         send_commands(f"{direction}", f"{distance}")
@@ -128,7 +124,7 @@ class BallerRover():
         self.get_image()
 
         while len(self.ball_pos) == 0:
-            self.rotate(45)  # TODO: find camera FOV and good rotation value
+            self._rotate(45)  # TODO: find camera FOV and good rotation value
             self.get_image()
 
     def check_contact(image):
@@ -144,7 +140,7 @@ class BallerRover():
         turn_speed = 0
         pass
         return DriveCommand(forward_speed, turn_speed)
-        # rotate bot to center the ball in the image, and approach using pid?
+        # _rotate bot to center the ball in the image, and approach using pid?
 
     def pickup():
         pass
