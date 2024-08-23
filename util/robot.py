@@ -109,9 +109,8 @@ class BallerRover():
         # handle direction of turning in here
         pass
 
-    def drive(self, distance=1):
-        send_commands(f"F", f"{distance}")
-
+    def drive(self, direction, distance=1):
+        send_commands(f"{direction}", f"{distance}")
 
     def probe(self):
         # skip if there are balls to path for
