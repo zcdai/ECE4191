@@ -16,20 +16,13 @@ class DriveCommand:
         self.forward_speed = forward_speed
         self.turn_speed = turn_speed
 
-
-class Position:
-    def __init__(self, x, y):
-        # x is length deep, y is length lateral
-        self.x = x
-        self.y = y
-
-
 class BallerRover():
-    def __init__(self, pos=Position(0, 0), angle=0):
-        self.wheel_vel = [0, 0]
+    def __init__(self, pos=[0, 0], angle=0, diameter=0.2286):
+        self.origin = pos
         self.pos = pos
         self.angle = angle
         self.ball_pos = []
+        self.diameter = diameter
 
 
     def get_image(self):
@@ -104,31 +97,41 @@ class BallerRover():
         self.pos = new_pos
 
     def return_to_origin(self):
-        self.primitive_path(Position(0, 0))
+        self.primitive_path(self.origin)
 
     def set_angle(self, angle):
         angle = angle % 360  # ensure angle is within 0 to 360 range
         angle_delta = angle - self.angle
         self.rotate(angle_delta)
 
-    def rotate(self, angle):
+    def rotate(self, angle_delta):
         # rotate the robot by angle degrees
         # positive angle is CCW
-        if angle == 0:
+        if angle_delta == 0:
             return
-        if angle > 180:
-            angle -= 360
-        elif angle < -180:
-            angle += 360
+        if angle_delta > 180:
+            angle_delta -= 360
+        elif angle_delta < -180:
+            angle_delta += 360
 
         constant = 0.528
 
-        if angle < 0:
-            self.drive('R', -angle * constant)
-        else:   
-            self.drive('L', angle * constant)
+        if angle_delta < 0:
+            self.drive('R', -angle_delta * constant)
+            pivot_point = self.x + np.cos(self.angle), self.y + np.sin(self.angle)
 
-        self.angle += angle
+
+        else:   
+            self.drive('L', angle_delta * constant)
+            pivot_point = self.x - np.cos(self.angle), self.y - np.sin(self.angle)
+
+        self.angle += angle_delta
+        self._rotate_arnd_point(angle_delta, pivot_point)
+
+    def _rotate_arnd_point(self, angle_delta, pivot_point): 
+        x_offset, y_offset = self.x - pivot_point[0], self.y - pivot_point[1]
+        x_new, y_new = x_offset * np.cos(angle_delta) - y_offset * np.sin(angle_delta), x_offset * np.sin(angle_delta) + y_offset * np.cos(angle_delta)
+        self.x, self.y= x_new + pivot_point[0], y_new + pivot_point[1]
 
     def drive(self, direction='F', distance=1):
         send_commands(f"{direction}", f"{distance}")
@@ -163,8 +166,3 @@ class BallerRover():
     def pickup():
         pass
         # pickup the ball
-        
-if __name__ == "__main__":
-    r = BallerRover()
-    img = r.get_image()
-    print(img)
