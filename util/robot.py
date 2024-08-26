@@ -2,12 +2,11 @@ import numpy as np
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-# from Detector import Detector
-# from TennisBallPose import estimate_pose
+from Detector import Detector
+from TennisBallPose import estimate_pose
 import os
 import cv2
-import threading
-from comm import send_commands, stop_motors
+from comm import send_commands
 
 
 class DriveCommand:
@@ -74,15 +73,9 @@ class BallerRover():
         except IndexError:
             return None
 
-    def set_angle(self, angle):
-        if angle == self.angle:
-            return
-        angle_delta = angle - self.angle
-        self.rotate(angle_delta)
-        self.angle = angle
+
 
     def primitive_path(self, new_pos):
-        # calculate the primitive path
         if new_pos.x > self.pos.x:
             self.set_angle(0)
             x_delta = new_pos.x - self.pos.x
@@ -103,20 +96,43 @@ class BallerRover():
 
         self.pos = new_pos
 
+    def direct_path(self, new_pos):
+        x_delta = new_pos.x - self.pos.x
+        y_delta = new_pos.y - self.pos.y
+        angle = np.arctan2(y_delta, x_delta) * 180 / np.pi
+        self.set_angle(angle)
+        distance = np.sqrt(x_delta ** 2 + y_delta ** 2)
+        self.drive('F', distance)
+        self.pos = new_pos
+
     def return_to_origin(self):
         self.primitive_path(Position(0, 0))
+
+    def set_angle(self, angle):
+        angle = angle % 360  # ensure angle is within 0 to 360 range
+        angle_delta = angle - self.angle
+        self.rotate(angle_delta)
 
     def rotate(self, angle):
         # rotate the robot by angle degrees
         # positive angle is CCW
-        constant = 0.528
+        if angle == 0:
+            return
         if angle > 180:
-            angle = 360 - angle
-            self.drive('R', angle * constant)
-        else:
+            angle -= 360
+        elif angle < -180:
+            angle += 360
+            
+        constant = 0.528
+
+        if angle < 0:
+            self.drive('R', -angle * constant)
+        else:   
             self.drive('L', angle * constant)
 
-    def drive(self, direction, distance=1):
+        self.angle += angle
+
+    def drive(self, direction='F', distance=1):
         send_commands(f"{direction}", f"{distance}")
 
 
