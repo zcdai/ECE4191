@@ -25,10 +25,10 @@ class Position:
 
 
 class BallerRover():
-    def __init__(self):
+    def __init__(self, pos=Position(0, 0), angle=0):
         self.wheel_vel = [0, 0]
-        self.pos = Position(0, 0)
-        self.angle = 0
+        self.pos = pos
+        self.angle = angle
         self.ball_pos = []
 
 
@@ -72,8 +72,6 @@ class BallerRover():
             return self.ball_pos.pop()
         except IndexError:
             return None
-
-
 
     def primitive_path(self, new_pos):
         if new_pos.x > self.pos.x:
@@ -122,7 +120,7 @@ class BallerRover():
             angle -= 360
         elif angle < -180:
             angle += 360
-            
+
         constant = 0.528
 
         if angle < 0:
