@@ -97,7 +97,7 @@ class BallerRover():
         self.pos = new_pos
 
     def return_to_origin(self):
-        self.primitive_path(self.origin)
+        self.direct_path(self.origin)
 
     def set_angle(self, angle):
         angle = angle % 360  # ensure angle is within 0 to 360 range

@@ -22,3 +22,4 @@ if __name__ == "__main__":
     bot = BallerRover()
     bot.direct_path([2,1])
     bot.set_angle(0)
+    bot.return_to_origin()
