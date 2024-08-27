@@ -67,29 +67,30 @@ class BallerRover():
             return None
 
     def primitive_path(self, new_pos):
-        if new_pos.x > self.pos.x:
+        if new_pos[0] > self.pos[0]:
             self.set_angle(0)
-            x_delta = new_pos.x - self.pos.x
+            x_delta = new_pos[0] - self.pos[0]
             self.drive(x_delta)
         else:
             self.set_angle(180)
-            x_delta = self.pos.x - new_pos.x
+            x_delta = self.pos[0] - new_pos[0]
             self.drive(x_delta)
 
-        if new_pos.y > self.pos.y:
+        if new_pos[1] > self.pos[1]:
             self.set_angle(270)
-            y_delta = new_pos.y - self.pos.y
+            y_delta = new_pos[1] - self.pos[1]
             self.drive(y_delta)
         else:
             self.set_angle(90)
-            y_delta = self.pos.y - new_pos.y
+            y_delta = self.pos[1] - new_pos[1]
             self.drive(y_delta)
 
         self.pos = new_pos
 
+    # TODO: There is a problem with calculating the path, since the robot moves during rotation, it is not a simple trigonometric calculation
     def direct_path(self, new_pos):
-        x_delta = new_pos.x - self.pos.x
-        y_delta = new_pos.y - self.pos.y
+        x_delta = new_pos[0] - self.pos[0]
+        y_delta = new_pos[1] - self.pos[1]
         angle = np.arctan2(y_delta, x_delta) * 180 / np.pi
         self.set_angle(angle)
         distance = np.sqrt(x_delta ** 2 + y_delta ** 2)
@@ -126,12 +127,14 @@ class BallerRover():
             pivot_point = self.x - np.cos(self.angle), self.y - np.sin(self.angle)
 
         self.angle += angle_delta
-        self._rotate_arnd_point(angle_delta, pivot_point)
+        self.pos = self._rotate_arnd_point(angle_delta, pivot_point)
 
+    """Calculates the new position of the robot after rotating around a pivot point
+    This is only during rotation, where the bot rotates around one of the wheels"""
     def _rotate_arnd_point(self, angle_delta, pivot_point): 
         x_offset, y_offset = self.x - pivot_point[0], self.y - pivot_point[1]
         x_new, y_new = x_offset * np.cos(angle_delta) - y_offset * np.sin(angle_delta), x_offset * np.sin(angle_delta) + y_offset * np.cos(angle_delta)
-        self.x, self.y= x_new + pivot_point[0], y_new + pivot_point[1]
+        return x_new + pivot_point[0], y_new + pivot_point[1]
 
     def drive(self, direction='F', distance=1):
         send_commands(f"{direction}", f"{distance}")
