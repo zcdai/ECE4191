@@ -32,11 +32,10 @@ def estimate_pose(camera_matrix, obj_info, robot_pose):
     """
     # read in camera matrix (from camera calibration results)
     focal_length = camera_matrix[0][0]
-    robot_pose = [0,0,0]
     # there are 8 possible types of fruits and vegs
     ######### Replace with your codes #########
     # TODO: measure actual sizes of targets [width, depth, height] and update the dictionary of true target dimensions
-    target_dimensions_dict = {'Balls': [6.7,6.7,6.7]}
+    target_dimensions_dict = {'Balls': [0.067,0.067,0.067]}
     #########
 # estimate target pose using bounding box and robot pose
     target_class = obj_info[0]     # get predicted target label of the box
@@ -50,14 +49,14 @@ def estimate_pose(camera_matrix, obj_info, robot_pose):
     # image size 640x480 pixels, 640/2=320
     x_shift = 320 - pixel_center              # x distance between bounding box centre and centreline in camera view
     theta = np.radians(np.arctan(x_shift/focal_length))     # angle of object relative to the robot
-    ang = theta + np.radians(robot_pose[2])     # angle of object in the world frame
+    ang = np.radians(robot_pose[2])     # angle of object in the world frame
     
    # relative object location
     distance_obj = distance/np.cos(theta) # relative distance between robot and object
     x_relative = distance_obj * np.cos(theta) # relative x pose
     y_relative = distance_obj * np.sin(theta) # relative y pose
     relative_pose = {'x': x_relative, 'y': y_relative}
-
+    print(relative_pose)
     target_pose = []
 
     # location of object in the world frame using rotation matrix

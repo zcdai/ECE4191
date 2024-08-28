@@ -31,6 +31,7 @@ class BallerRover():
         # maybe sort by distance? longest to shortest
 
         script_dir = os.path.dirname(os.path.abspath(__file__))
+        sorted_target_poses = []
 
         # Read in camera matrix
         fileK = f'{script_dir}/../Params/intrinsic.txt'
@@ -49,7 +50,7 @@ class BallerRover():
         cap.release() 
 
         bounding_boxes, bbox_img = yolo.detect_single_image(frame)
-        robot_pose = [self.x, self.y, self.angle]
+        robot_pose = [self.pos[0], self.pos[1], self.angle]
 
         target_poses = []
         distances = []
@@ -60,8 +61,8 @@ class BallerRover():
             target_poses.append(target_pose)
 
             # Calculate distance from the robot to the target
-            dx = target_pose[0] - self.x
-            dy = target_pose[1] - self.y
+            dx = target_pose[0] - self.pos[0]
+            dy = target_pose[1] - self.pos[1]
             distance = np.sqrt(dx**2 + dy**2)
             distances.append(distance)
             # Combine target poses with their distances
@@ -72,7 +73,9 @@ class BallerRover():
 
             # Extract sorted target poses
             sorted_target_poses = [target[0] for target in sorted_targets_with_distances]
-
+            for target in sorted_target_poses:
+                target[1] = -target[1]
+                
         return sorted_target_poses
 
     def get_closest_ball(self):
@@ -82,23 +85,23 @@ class BallerRover():
             return None
 
     def primitive_path(self, new_pos):
-        if new_pos[0] > self.pos[0]:
+        if new_pos[1] > self.pos[1]:
             self.set_angle(0)
-            x_delta = new_pos[0] - self.pos[0]
-            self.drive(x_delta)
+            y_delta = new_pos[1] - self.pos[1]
+            self.drive(distance=y_delta)
         else:
             self.set_angle(180)
-            x_delta = self.pos[0] - new_pos[0]
-            self.drive(x_delta)
+            y_delta = self.pos[1] - new_pos[1]
+            self.drive(distance=y_delta)
 
-        if new_pos[1] > self.pos[1]:
+        if new_pos[0] > self.pos[0]:
             self.set_angle(270)
-            y_delta = new_pos[1] - self.pos[1]
-            self.drive(y_delta)
+            x_delta = new_pos[0] - self.pos[0]
+            self.drive(distance=x_delta)
         else:
             self.set_angle(90)
-            y_delta = self.pos[1] - new_pos[1]
-            self.drive(y_delta)
+            x_delta = self.pos[0] - new_pos[0]
+            self.drive(distance=x_delta)
 
         self.pos = new_pos
 
@@ -131,6 +134,7 @@ class BallerRover():
             angle_delta += 360
 
         constant = 0.528/180
+        #c_r = 0.696
 
         if angle_delta < 0:
             self.drive('R', -angle_delta * constant)
