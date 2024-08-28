@@ -2,8 +2,8 @@ import numpy as np
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-# from Detector import Detector
-# from TennisBallPose import estimate_pose
+from Detector import Detector
+from TennisBallPose import estimate_pose
 import os
 import cv2
 import threading
@@ -60,13 +60,28 @@ class BallerRover():
         robot_pose = np.append(self.pos, self.angle)
 
         target_poses = []
+        distances = []
 
         for detection in bounding_boxes:
             target_pose = estimate_pose(camera_matrix, detection, robot_pose)
             print(f"Detected {detection[0]} at {target_pose}")
             target_poses.append(target_pose)
 
-        return target_poses
+            # Calculate distance from the robot to the target
+            dx = target_pose[0] - self.x
+            dy = target_pose[1] - self.y
+            distance = np.sqrt(dx**2 + dy**2)
+            distances.append(distance)
+            # Combine target poses with their distances
+            targets_with_distances = list(zip(target_poses, distances))
+
+            # Sort targets by distance (closest first)
+            sorted_targets_with_distances = sorted(targets_with_distances, key=lambda x: x[1])
+
+            # Extract sorted target poses
+            sorted_target_poses = [target[0] for target in sorted_targets_with_distances]
+
+        return sorted_target_poses
 
     def get_closest_ball(self):
         try:

@@ -36,7 +36,6 @@ class Detector:
             y1 = int(xyxy[1])
             x2 = int(xyxy[2])
             y2 = int(xyxy[3])
-
             # draw bounding box
             img_out = cv2.rectangle(img_out, (x1, y1), (x2, y2), self.class_colour[bbox[0]], thickness=2)
 
@@ -67,7 +66,6 @@ class Detector:
             for box in boxes:
                 # bounding format in [x, y, width, height]
                 box_cord = box.xywh[0]
-                print(box_cord)
                 box_label = int(box.cls)  # class label of the box
 
                 bounding_boxes.append([prediction.names[(box_label)], np.asarray(box_cord)])

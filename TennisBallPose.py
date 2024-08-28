@@ -49,8 +49,8 @@ def estimate_pose(camera_matrix, obj_info, robot_pose):
     distance = true_height/pixel_height * focal_length  # estimated distance between the robot and the centre of the image plane based on height
     # image size 640x480 pixels, 640/2=320
     x_shift = 320 - pixel_center              # x distance between bounding box centre and centreline in camera view
-    theta = np.arctan(x_shift/focal_length)     # angle of object relative to the robot
-    ang = theta + robot_pose[2]     # angle of object in the world frame
+    theta = np.radians(np.arctan(x_shift/focal_length))     # angle of object relative to the robot
+    ang = theta + np.radians(robot_pose[2])     # angle of object in the world frame
     
    # relative object location
     distance_obj = distance/np.cos(theta) # relative distance between robot and object
@@ -58,12 +58,14 @@ def estimate_pose(camera_matrix, obj_info, robot_pose):
     y_relative = distance_obj * np.sin(theta) # relative y pose
     relative_pose = {'x': x_relative, 'y': y_relative}
 
+    target_pose = []
+
     # location of object in the world frame using rotation matrix
     delta_x_world = x_relative * np.cos(ang) - y_relative * np.sin(ang)
     delta_y_world = x_relative * np.sin(ang) + y_relative * np.cos(ang)
     # add robot pose with delta target pose
-    target_pose = {'y': (robot_pose[1]+delta_y_world),
-                   'x': (robot_pose[0]+delta_x_world)}
+    # add robot pose with delta target pose
+    target_pose = [robot_pose[0] + delta_x_world, robot_pose[1] + delta_y_world]
     #print(f'delta_x_world: {delta_x_world}, delta_y_world: {delta_y_world}')
     #print(f'target_pose: {target_pose}')
     
