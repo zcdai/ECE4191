@@ -6,6 +6,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'util'))
 from util.robot import BallerRover
 import util.comm as comm
 import util.robot as bot
+import cv2
 
 # def main():
 #     bot = BallerRover()
