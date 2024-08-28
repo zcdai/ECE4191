@@ -189,6 +189,7 @@ class BallerRover():
         return self.rotate_point(angle_delta, pivot_point)
 
     def drive(self, direction='F', distance=1):
+        send_commands(direction, distance)
         if direction == 'F':
             dx = distance * np.cos(np.radians(self.angle))
             dy = distance * np.sin(np.radians(self.angle))
