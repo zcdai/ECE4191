@@ -9,15 +9,8 @@ import cv2
 from comm import send_commands
 
 
-class DriveCommand:
-    # forward_speed: [0, 1], float
-    # turn_speed: [-1, 1], float
-    def __init__(self, forward_speed, turn_speed=0):
-        self.forward_speed = forward_speed
-        self.turn_speed = turn_speed
-
 class BallerRover():
-    def __init__(self, pos=[0, 0], angle=0, diameter=0.2286):
+    def __init__(self, pos=[0, 0], angle=90, diameter=0.2286):
         self.origin = pos
         self.pos = pos
         self.angle = angle
@@ -85,25 +78,40 @@ class BallerRover():
             return None
 
     def primitive_path(self, new_pos):
-        if new_pos[1] > self.pos[1]:
-            self.set_angle(0)
-            y_delta = new_pos[1] - self.pos[1]
-            self.drive(distance=y_delta)
-        else:
-            self.set_angle(180)
-            y_delta = self.pos[1] - new_pos[1]
-            self.drive(distance=y_delta)
+        x_delta = new_pos[0] - self.pos[0]
+        y_delta = new_pos[1] - self.pos[1]
+        running_error = np.array([0.0, 0.0])
 
-        if new_pos[0] > self.pos[0]:
-            self.set_angle(270)
-            x_delta = new_pos[0] - self.pos[0]
-            self.drive(distance=x_delta)
-        else:
+        if y_delta > 0:
+            running_error += self.test_set_error(90, self.angle)
+            resulting_angle = 90
+
+        elif y_delta < 0:
+            running_error += self.test_set_error(-90, self.angle)
+            resulting_angle = -90
+
+        if x_delta > 0:
+            running_error += self.test_set_error(0, resulting_angle)
+
+        elif x_delta < 0:
+            running_error += self.test_set_error(180, resulting_angle)
+
+        if y_delta > 0:
             self.set_angle(90)
-            x_delta = self.pos[0] - new_pos[0]
-            self.drive(distance=x_delta)
+            self.drive(distance=y_delta - running_error[1])
+        elif y_delta < 0:
+            self.set_angle(-90)
+            self.drive(distance=-y_delta + running_error[1])
 
-        self.pos = new_pos
+        if x_delta > 0:
+            self.set_angle(0)
+            self.drive(distance=x_delta - running_error[0])
+        elif x_delta < 0:
+            self.set_angle(180)
+            self.drive(distance=-x_delta + running_error[0])
+
+
+
 
     # TODO: There is a problem with calculating the path, since the robot moves during rotation, it is not a simple trigonometric calculation
     def direct_path(self, new_pos):
@@ -113,7 +121,6 @@ class BallerRover():
         self.set_angle(angle)
         distance = np.sqrt(x_delta ** 2 + y_delta ** 2)
         self.drive('F', distance)
-        self.pos = new_pos
 
     def return_to_origin(self):
         self.direct_path(self.origin)
@@ -133,33 +140,59 @@ class BallerRover():
         elif angle_delta < -180:
             angle_delta += 360
 
-        constant = 0.528/180
-        #c_r = 0.696
+        c_l = 0.528/180
+        c_r = 0.696/180
+
+        pivot_point = self.pos[0] + np.sin(np.radians(self.angle))*self.diameter/2, self.pos[1] - np.cos(np.radians(self.angle))*self.diameter/2
 
         if angle_delta < 0:
-            self.drive('R', -angle_delta * constant)
-            pivot_point = self.pos[0] - np.cos(self.angle)*self.diameter/2, self.pos[1] - np.sin(self.angle)*self.diameter/2
-
+            self.drive('R', -angle_delta * c_r)
 
         else:   
-            self.drive('L', angle_delta * constant)
-            pivot_point = self.pos[0] + np.cos(self.angle)*self.diameter/2, self.pos[1] + np.sin(self.angle)*self.diameter/2
+            self.drive('L', angle_delta * c_l)
+
 
         self.angle += angle_delta
-        print(f"Pivot at:{pivot_point}, Delta at: {angle_delta}")
-        self.pos = self._rotate_arnd_point(angle_delta, pivot_point)
-        print(f"Pos at: {self.pos}")
+        self.pos = self.rotate_point(angle_delta, pivot_point)
 
     """Calculates the new position of the robot after rotating around a pivot point
-    This is only during rotation, where the bot rotates around one of the wheels"""
-    def _rotate_arnd_point(self, angle_delta, pivot_point): 
-        
-        x_offset, y_offset = self.pos[0] - pivot_point[0], self.pos[1] - pivot_point[1]
-        x_new, y_new = x_offset * np.cos(angle_delta) - y_offset * np.sin(angle_delta), x_offset * np.sin(angle_delta) + y_offset * np.cos(angle_delta)
-        return x_new + pivot_point[0], y_new + pivot_point[1]
+    This is only during rotation, where the bot rotates around the right wheel"""
+    
+    def rotate_point(self, angle_delta, pivot_point=[0.1143, 0]):
+        x, y = self.pos[0], self.pos[1]
+        cx, cy = pivot_point[0], pivot_point[1]
+        angle_delta = angle_delta % 360  # ensure angle is within 0 to 360 range
+        angle_delta = np.radians(angle_delta)
+
+        # Translate point to origin
+        translated_point = np.array([x - cx, y - cy])
+
+        # Rotation matrix
+        rotation_matrix = np.array([
+            [np.cos(angle_delta), -np.sin(angle_delta)],
+            [np.sin(angle_delta),  np.cos(angle_delta)]
+        ])
+
+        # Rotate the point
+        rotated_point = np.dot(rotation_matrix, translated_point)
+
+        # Translate point back
+        x_rotated, y_rotated = rotated_point + np.array([cx, cy])
+
+        return x_rotated, y_rotated
+    
+    def test_set_error(self, angle, cur_angle):
+        angle = angle % 360  # ensure angle is within 0 to 360 range
+        cur_angle = cur_angle % 360  # ensure angle is within 0 to 360 range
+        angle_delta = angle - cur_angle
+        pivot_point = self.pos[0] + np.sin(np.radians(cur_angle))*self.diameter/2, self.pos[1] - np.cos(np.radians(cur_angle))*self.diameter/2
+        return self.rotate_point(angle_delta, pivot_point)
 
     def drive(self, direction='F', distance=1):
-        send_commands(f"{direction}", f"{distance}")
+        if direction == 'F':
+            dx = distance * np.cos(np.radians(self.angle))
+            dy = distance * np.sin(np.radians(self.angle))
+            self.pos = [self.pos[0] + dx, self.pos[1] + dy]
 
 
     def probe(self):
