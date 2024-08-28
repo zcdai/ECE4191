@@ -49,7 +49,7 @@ class BallerRover():
         cap.release() 
 
         bounding_boxes, bbox_img = yolo.detect_single_image(frame)
-        robot_pose = np.append(self.pos, self.angle)
+        robot_pose = [self.x, self.y, self.angle]
 
         target_poses = []
 
@@ -115,24 +115,25 @@ class BallerRover():
         elif angle_delta < -180:
             angle_delta += 360
 
-        constant = 0.528
+        constant = 0.528/180
 
         if angle_delta < 0:
             self.drive('R', -angle_delta * constant)
-            pivot_point = self.x + np.cos(self.angle), self.y + np.sin(self.angle)
+            pivot_point = self.pos[0] + np.cos(self.angle), self.pos[1] + np.sin(self.angle)
 
 
         else:   
             self.drive('L', angle_delta * constant)
-            pivot_point = self.x - np.cos(self.angle), self.y - np.sin(self.angle)
+            pivot_point = self.pos[0] - np.cos(self.angle), self.pos[1] - np.sin(self.angle)
 
         self.angle += angle_delta
+        print(f"Pivot at :{pivot_point}")
         self.pos = self._rotate_arnd_point(angle_delta, pivot_point)
 
     """Calculates the new position of the robot after rotating around a pivot point
     This is only during rotation, where the bot rotates around one of the wheels"""
     def _rotate_arnd_point(self, angle_delta, pivot_point): 
-        x_offset, y_offset = self.x - pivot_point[0], self.y - pivot_point[1]
+        x_offset, y_offset = self.pos[0] - pivot_point[0], self.pos[1] - pivot_point[1]
         x_new, y_new = x_offset * np.cos(angle_delta) - y_offset * np.sin(angle_delta), x_offset * np.sin(angle_delta) + y_offset * np.cos(angle_delta)
         return x_new + pivot_point[0], y_new + pivot_point[1]
 
@@ -148,7 +149,7 @@ class BallerRover():
         self.get_image()
 
         while len(self.ball_pos) == 0:
-            self.rotate(45)  # TODO: find camera FOV and good rotation value
+            self._rotate(45)  # TODO: find camera FOV and good rotation value
             self.get_image()
 
     def check_contact(image):
@@ -164,7 +165,7 @@ class BallerRover():
         turn_speed = 0
         pass
         return DriveCommand(forward_speed, turn_speed)
-        # rotate bot to center the ball in the image, and approach using pid?
+        # _rotate bot to center the ball in the image, and approach using pid?
 
     def pickup():
         pass
