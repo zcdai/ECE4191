@@ -6,6 +6,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'util'))
 from util.robot import BallerRover
 import util.comm as comm
 import util.robot as bot
+import cv2
 
 # def main():
 #     bot = BallerRover()
@@ -17,15 +18,13 @@ import util.robot as bot
 
 #         bot.return_to_origin()
 
-def test(bot):
-    while True:
-        direction = input("Enter the direction: ").upper()
-        distance = float(input("Enter the distance: "))
-        bot.drive(direction, distance)
-        user_input = input("Press any key to continue, or 'q' to quit: ")
-        if user_input == 'q':
-            break
  
 if __name__ == "__main__":
     bot = BallerRover()
-    test(bot)
+    # bot.direct_path([2,1])
+    # bot.set_angle(0)
+    # bot.return_to_origin()
+    
+    bot.direct_path([0,1])
+
+    # bot.drive(distance=0.5)

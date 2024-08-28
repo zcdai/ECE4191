@@ -6,8 +6,7 @@ from Detector import Detector
 from TennisBallPose import estimate_pose
 import os
 import cv2
-import threading
-from comm import send_commands, stop_motors
+from comm import send_commands
 
 
 class DriveCommand:
@@ -17,20 +16,13 @@ class DriveCommand:
         self.forward_speed = forward_speed
         self.turn_speed = turn_speed
 
-
-class Position:
-    def __init__(self, x, y):
-        # x is length deep, y is length lateral
-        self.x = x
-        self.y = y
-
-
 class BallerRover():
-    def __init__(self):
-        self.wheel_vel = [0, 0]
-        self.pos = Position(0, 0)
-        self.angle = 0
+    def __init__(self, pos=[0, 0], angle=0, diameter=0.2286):
+        self.origin = pos
+        self.pos = pos
+        self.angle = angle
         self.ball_pos = []
+        self.diameter = diameter
 
 
     def get_image(self):
@@ -57,7 +49,7 @@ class BallerRover():
         cap.release() 
 
         bounding_boxes, bbox_img = yolo.detect_single_image(frame)
-        robot_pose = np.append(self.pos, self.angle)
+        robot_pose = [self.x, self.y, self.angle]
 
         target_poses = []
         distances = []
@@ -89,49 +81,80 @@ class BallerRover():
         except IndexError:
             return None
 
-    def set_angle(self, angle):
-        if angle == self.angle:
-            return
-        angle_delta = angle - self.angle
-        self.rotate(angle_delta)
-        self.angle = angle
-
     def primitive_path(self, new_pos):
-        # calculate the primitive path
-        if new_pos.x > self.pos.x:
+        if new_pos[0] > self.pos[0]:
             self.set_angle(0)
-            x_delta = new_pos.x - self.pos.x
+            x_delta = new_pos[0] - self.pos[0]
             self.drive(x_delta)
         else:
             self.set_angle(180)
-            x_delta = self.pos.x - new_pos.x
+            x_delta = self.pos[0] - new_pos[0]
             self.drive(x_delta)
 
-        if new_pos.y > self.pos.y:
+        if new_pos[1] > self.pos[1]:
             self.set_angle(270)
-            y_delta = new_pos.y - self.pos.y
+            y_delta = new_pos[1] - self.pos[1]
             self.drive(y_delta)
         else:
             self.set_angle(90)
-            y_delta = self.pos.y - new_pos.y
+            y_delta = self.pos[1] - new_pos[1]
             self.drive(y_delta)
 
         self.pos = new_pos
 
-    def return_to_origin(self):
-        self.primitive_path(Position(0, 0))
+    # TODO: There is a problem with calculating the path, since the robot moves during rotation, it is not a simple trigonometric calculation
+    def direct_path(self, new_pos):
+        x_delta = new_pos[0] - self.pos[0]
+        y_delta = new_pos[1] - self.pos[1]
+        angle = -np.arctan2(x_delta, y_delta) * 180 / np.pi
+        self.set_angle(angle)
+        distance = np.sqrt(x_delta ** 2 + y_delta ** 2)
+        self.drive('F', distance)
+        self.pos = new_pos
 
-    def rotate(self, angle):
+    def return_to_origin(self):
+        self.direct_path(self.origin)
+
+    def set_angle(self, angle):
+        angle = angle % 360  # ensure angle is within 0 to 360 range
+        angle_delta = angle - self.angle
+        self.rotate(angle_delta)
+
+    def rotate(self, angle_delta):
         # rotate the robot by angle degrees
         # positive angle is CCW
-        constant = 0.528
-        if angle > 180:
-            angle = 360 - angle
-            self.drive('R', angle * constant)
-        else:
-            self.drive('L', angle * constant)
+        if angle_delta == 0:
+            return
+        if angle_delta > 180:
+            angle_delta -= 360
+        elif angle_delta < -180:
+            angle_delta += 360
 
-    def drive(self, direction, distance=1):
+        constant = 0.528/180
+
+        if angle_delta < 0:
+            self.drive('R', -angle_delta * constant)
+            pivot_point = self.pos[0] - np.cos(self.angle)*self.diameter/2, self.pos[1] - np.sin(self.angle)*self.diameter/2
+
+
+        else:   
+            self.drive('L', angle_delta * constant)
+            pivot_point = self.pos[0] + np.cos(self.angle)*self.diameter/2, self.pos[1] + np.sin(self.angle)*self.diameter/2
+
+        self.angle += angle_delta
+        print(f"Pivot at:{pivot_point}, Delta at: {angle_delta}")
+        self.pos = self._rotate_arnd_point(angle_delta, pivot_point)
+        print(f"Pos at: {self.pos}")
+
+    """Calculates the new position of the robot after rotating around a pivot point
+    This is only during rotation, where the bot rotates around one of the wheels"""
+    def _rotate_arnd_point(self, angle_delta, pivot_point): 
+        
+        x_offset, y_offset = self.pos[0] - pivot_point[0], self.pos[1] - pivot_point[1]
+        x_new, y_new = x_offset * np.cos(angle_delta) - y_offset * np.sin(angle_delta), x_offset * np.sin(angle_delta) + y_offset * np.cos(angle_delta)
+        return x_new + pivot_point[0], y_new + pivot_point[1]
+
+    def drive(self, direction='F', distance=1):
         send_commands(f"{direction}", f"{distance}")
 
 
@@ -143,7 +166,7 @@ class BallerRover():
         self.get_image()
 
         while len(self.ball_pos) == 0:
-            self.rotate(45)  # TODO: find camera FOV and good rotation value
+            self._rotate(45)  # TODO: find camera FOV and good rotation value
             self.get_image()
 
     def check_contact(image):
@@ -159,13 +182,8 @@ class BallerRover():
         turn_speed = 0
         pass
         return DriveCommand(forward_speed, turn_speed)
-        # rotate bot to center the ball in the image, and approach using pid?
+        # _rotate bot to center the ball in the image, and approach using pid?
 
     def pickup():
         pass
         # pickup the ball
-        
-if __name__ == "__main__":
-    r = BallerRover()
-    img = r.get_image()
-    print(img)
