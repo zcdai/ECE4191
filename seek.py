@@ -25,7 +25,6 @@ if __name__ == "__main__":
     # bot.set_angle(0)
     # bot.return_to_origin()
     
-    bot.rotate(90)
-    print(bot.pos)
-    bot.rotate(-90)
-    bot.drive(distance=0.5)
+    bot.direct_path([0,1])
+
+    # bot.drive(distance=0.5)

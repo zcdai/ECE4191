@@ -91,7 +91,7 @@ class BallerRover():
     def direct_path(self, new_pos):
         x_delta = new_pos[0] - self.pos[0]
         y_delta = new_pos[1] - self.pos[1]
-        angle = np.arctan2(y_delta, x_delta) * 180 / np.pi
+        angle = -np.arctan2(x_delta, y_delta) * 180 / np.pi
         self.set_angle(angle)
         distance = np.sqrt(x_delta ** 2 + y_delta ** 2)
         self.drive('F', distance)
@@ -119,20 +119,22 @@ class BallerRover():
 
         if angle_delta < 0:
             self.drive('R', -angle_delta * constant)
-            pivot_point = self.pos[0] + np.cos(self.angle), self.pos[1] + np.sin(self.angle)
+            pivot_point = self.pos[0] - np.cos(self.angle)*self.diameter/2, self.pos[1] - np.sin(self.angle)*self.diameter/2
 
 
         else:   
             self.drive('L', angle_delta * constant)
-            pivot_point = self.pos[0] - np.cos(self.angle), self.pos[1] - np.sin(self.angle)
+            pivot_point = self.pos[0] + np.cos(self.angle)*self.diameter/2, self.pos[1] + np.sin(self.angle)*self.diameter/2
 
         self.angle += angle_delta
-        print(f"Pivot at :{pivot_point}")
+        print(f"Pivot at:{pivot_point}, Delta at: {angle_delta}")
         self.pos = self._rotate_arnd_point(angle_delta, pivot_point)
+        print(f"Pos at: {self.pos}")
 
     """Calculates the new position of the robot after rotating around a pivot point
     This is only during rotation, where the bot rotates around one of the wheels"""
     def _rotate_arnd_point(self, angle_delta, pivot_point): 
+        
         x_offset, y_offset = self.pos[0] - pivot_point[0], self.pos[1] - pivot_point[1]
         x_new, y_new = x_offset * np.cos(angle_delta) - y_offset * np.sin(angle_delta), x_offset * np.sin(angle_delta) + y_offset * np.cos(angle_delta)
         return x_new + pivot_point[0], y_new + pivot_point[1]
