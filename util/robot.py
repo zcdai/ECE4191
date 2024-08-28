@@ -127,6 +127,7 @@ class BallerRover():
             pivot_point = self.pos[0] - np.cos(self.angle), self.pos[1] - np.sin(self.angle)
 
         self.angle += angle_delta
+        print(f"Pivot at :{pivot_point}")
         self.pos = self._rotate_arnd_point(angle_delta, pivot_point)
 
     """Calculates the new position of the robot after rotating around a pivot point
