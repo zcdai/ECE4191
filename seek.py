@@ -18,18 +18,9 @@ import cv2
 
 #         bot.return_to_origin()
 
-def test(bot):
-    while True:
-        direction = input("Enter the direction: ").upper()
-        distance = float(input("Enter the distance: "))
-        bot.drive(direction, distance)
-        user_input = input("Press any key to continue, or 'q' to quit: ")
-        if user_input == 'q':
-            break
  
 if __name__ == "__main__":
-    radius = 0.114
-    bot = BallerRover(radius)
-    
-    while True:
-        print(bot.get_image())
+    bot = BallerRover()
+    bot.direct_path([2,1])
+    bot.set_angle(0)
+    bot.return_to_origin()
