@@ -14,7 +14,7 @@ class Detector:
             'Balls': (0, 255, 0),
         }
 
-    def detect_single_image(self, img):
+    def detect_single_image(self, img, conf_threshold=0.8):
         """
         function:
             detect target(s) in an image
@@ -24,7 +24,7 @@ class Detector:
             bboxes: list of lists, box info [label,[x,y,width,height]] for all detected targets in image
             img_out: image with bounding boxes and class labels drawn on
         """
-        bboxes = self._get_bounding_boxes(img)
+        bboxes = self._get_bounding_boxes(img, conf_threshold)
 
         img_out = deepcopy(img)
 
@@ -45,7 +45,7 @@ class Detector:
 
         return bboxes, img_out
 
-    def _get_bounding_boxes(self, cv_img):
+    def _get_bounding_boxes(self, cv_img, conf_threshold):
         """
         function:
             get bounding box and class label of target(s) in an image as detected by YOLOv8
@@ -64,11 +64,13 @@ class Detector:
         for prediction in predictions:
             boxes = prediction.boxes
             for box in boxes:
-                # bounding format in [x, y, width, height]
-                box_cord = box.xywh[0]
-                box_label = int(box.cls)  # class label of the box
+                confidence = box.conf[0]  # Confidence score of the detection
+                if confidence >= conf_threshold:
+                    # bounding format in [x, y, width, height]
+                    box_cord = box.xywh[0]
+                    box_label = int(box.cls)  # class label of the box
 
-                bounding_boxes.append([prediction.names[(box_label)], np.asarray(box_cord)])
+                    bounding_boxes.append([prediction.names[(box_label)], np.asarray(box_cord), confidence])
 
         return bounding_boxes
 
@@ -97,7 +99,7 @@ if __name__ == '__main__':
         resized_frame = cv2.resize(frame, (640, 480))
 
         # Perform object detection
-        bboxes, img_out = yolo.detect_single_image(resized_frame)
+        bboxes, img_out = yolo.detect_single_image(resized_frame,conf_threshold=0.7)
 
         # Display the output with detected bounding boxes
         cv2.imshow('YOLO Detection', img_out)
