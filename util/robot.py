@@ -25,6 +25,9 @@ class BallerRover():
 
 
     def get_image(self):
+        while not self.check_stopped():
+            time.sleep(1)
+
         # get image from camera and save positions of any balls
         # check if balls are a reasonable distance away (< hypotenuse of tennis quadrant)
         # maybe sort by distance? longest to shortest
@@ -216,7 +219,6 @@ class BallerRover():
             return
         # search for balls in vicinity
         self.ball_pos.extend(self.get_image())
-
         while len(self.ball_pos) == 0:
             self.rotate(45)
             self.ball_pos.extend(self.get_image())
@@ -231,12 +233,26 @@ class BallerRover():
         pass
         # if ball is on screen and close enough to go path to
 
-    def nav2ball(image):
-        forward_speed = 0
-        turn_speed = 0
-        pass
-        return DriveCommand(forward_speed, turn_speed)
-        # _rotate bot to center the ball in the image, and approach using pid?
+    def nav2ball(self, ball_pos):
+        ball_x, ball_y = ball_pos
+        bot_x, bot_y = self.pos
+        x_delta, y_delta = ball_x - bot_x, ball_y - bot_y
+        if abs(ball_x) > abs(ball_y):
+            self.primitive_path([ball_x, bot_y])
+            if y_delta > 0:
+                self.set_angle(90)
+            else:
+                self.set_angle(-90)
+        else:
+            self.primitive_path([bot_x, ball_y])
+            if x_delta > 0:
+                self.set_angle(0)
+            else:
+                self.set_angle(180)
+
+        new_pos = self.get_image()
+        self.primitive_path(new_pos[0])
+
 
     def pickup():
         pass
