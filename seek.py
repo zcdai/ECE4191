@@ -6,7 +6,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'util'))
 from util.robot import BallerRover
 import util.comm as comm
 import util.robot as bot
-import cv2
 
 # def main():
 #     bot = BallerRover()
@@ -20,11 +19,9 @@ import cv2
 
  
 if __name__ == "__main__":
-    bot = BallerRover()
-    # bot.direct_path([2,1])
-    # bot.set_angle(0)
-    # bot.return_to_origin()
-    
-    bot.direct_path([0,1])
+    bot = BallerRover(pos=[0, 1])
+    # bot.rotate(90)
+    bot.drive('R', 0.696)
+    # bot.rotate(-90)
+    # bot.primitive_path([-1,1])
 
-    # bot.drive(distance=0.5)
