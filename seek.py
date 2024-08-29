@@ -7,21 +7,24 @@ from util.robot import BallerRover
 import util.comm as comm
 import util.robot as bot
 
-# def main():
-#     bot = BallerRover()
-#     while True:
-#         bot.probe() # search for balls in vicinity
-#         bot.primitive_path(bot.ball_pos.pop()) # calculate the primitive path
+def m1():
+    bot = BallerRover()
+    bot.probe() # search for balls in vicinity
+    bot.primitive_path(bot.ball_pos.pop()) # calculate the primitive path
 
-#         # later down the line,stop if ball is close enough to line up with camera
+    # later down the line,stop if ball is close enough to line up with camera
 
-#         bot.return_to_origin()
+    bot.return_to_origin()
 
  
 if __name__ == "__main__":
-    bot = BallerRover(pos=[0, 1])
-    # bot.rotate(90)
-    bot.drive('R', 0.696)
-    # bot.rotate(-90)
-    # bot.primitive_path([-1,1])
-
+    bot = BallerRover(pos=[0, 0])
+    # # while True:
+    # #     x = float(input('x'))
+    # #     y = float(input('y'))
+    # #     bot.primitive_path([x, y])
+    # while True:
+    #     targets = bot.get_image()
+    #     print(targets)
+    bot.rotate(180)
+    # m1()

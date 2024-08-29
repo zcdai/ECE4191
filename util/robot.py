@@ -6,7 +6,8 @@ from Detector import Detector
 from TennisBallPose import estimate_pose
 import os
 import cv2
-from comm import send_commands
+import time
+from comm import send_commands, read
 
 
 class BallerRover():
@@ -17,12 +18,16 @@ class BallerRover():
         self.ball_pos = []
         self.diameter = diameter
 
+    def check_stopped(self):
+        if read() == 'S':
+            return True
+        return False
+
 
     def get_image(self):
         # get image from camera and save positions of any balls
         # check if balls are a reasonable distance away (< hypotenuse of tennis quadrant)
         # maybe sort by distance? longest to shortest
-
         script_dir = os.path.dirname(os.path.abspath(__file__))
         sorted_target_poses = []
 
@@ -79,7 +84,6 @@ class BallerRover():
         x_delta = new_pos[0] - self.pos[0]
         y_delta = new_pos[1] - self.pos[1]
 
-        print(x_delta, y_delta)
         running_error = np.array([0.0, 0.0])
 
         if y_delta > 0:
@@ -96,26 +100,23 @@ class BallerRover():
         elif x_delta < 0:
             running_error += self.test_set_error(180, resulting_angle)
 
-        print(running_error)
-
-
-        dy_to_travel = abs(y_delta - running_error[1])
+        dy_to_travel = y_delta - running_error[1]
         if dy_to_travel > 0:
             self.set_angle(90)
 
         elif dy_to_travel < 0:
             self.set_angle(-90)
 
-        self.drive(distance=dy_to_travel)
+        self.drive(distance=abs(dy_to_travel))
 
-        dx_to_travel = abs(x_delta - running_error[0])
+        dx_to_travel = x_delta - running_error[0]
         if x_delta > 0:
             self.set_angle(0)
 
         elif x_delta < 0:
             self.set_angle(180)
 
-        self.drive(distance=dx_to_travel)
+        self.drive(distance=abs(dx_to_travel))
 
 
 
@@ -130,7 +131,7 @@ class BallerRover():
         self.drive('F', distance)
 
     def return_to_origin(self):
-        self.direct_path(self.origin)
+        self.primitive_path(self.origin)
 
     def set_angle(self, angle):
         angle = angle % 360  # ensure angle is within 0 to 360 range
@@ -147,7 +148,7 @@ class BallerRover():
         elif angle_delta < -180:
             angle_delta += 360
 
-        c_l = 0.528/180
+        c_l = 0.525/180
         c_r = 0.696/180
 
         pivot_point = self.pos[0] + np.sin(np.radians(self.angle))*self.diameter/2, self.pos[1] - np.cos(np.radians(self.angle))*self.diameter/2
@@ -194,7 +195,12 @@ class BallerRover():
         cur_angle = cur_angle % 360  # ensure angle is within 0 to 360 range
         angle_delta = angle - cur_angle
         pivot_point = self.pos[0] + np.sin(np.radians(cur_angle))*self.diameter/2, self.pos[1] - np.cos(np.radians(cur_angle))*self.diameter/2
-        return self.rotate_point(angle_delta, pivot_point)
+        
+        x_err, y_err = self.rotate_point(angle_delta, pivot_point)
+        x_err -= self.pos[0]
+        y_err -= self.pos[1]
+
+        return x_err, y_err
 
     def drive(self, direction='F', distance=1):
         send_commands(direction, distance)
@@ -209,11 +215,13 @@ class BallerRover():
         if len(self.ball_pos) > 0:
             return
         # search for balls in vicinity
-        self.get_image()
+        self.ball_pos.extend(self.get_image())
 
         while len(self.ball_pos) == 0:
-            self._rotate(45)  # TODO: find camera FOV and good rotation value
-            self.get_image()
+            self.rotate(45)
+            self.ball_pos.extend(self.get_image())
+            while not self.check_stopped():
+                time.sleep(2)
 
     def check_contact(image):
         pass

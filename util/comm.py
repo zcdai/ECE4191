@@ -12,6 +12,9 @@ except Exception as e:
     print(f"Error opening serial port: {e}")
     exit()
 
+def read():
+    return ser.read().decode('utf-8')
+    
 def send_commands(cmd1, cmd2):
     ser.write(f'{cmd1}{cmd2}\n'.encode('utf-8'))
     ser.flush()  # Ensure the buffer is clear
