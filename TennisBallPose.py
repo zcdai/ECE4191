@@ -55,7 +55,6 @@ def estimate_pose(camera_matrix, obj_info, robot_pose):
     x_relative = distance_obj * np.cos(theta) # relative x pose
     y_relative = distance_obj * np.sin(theta) # relative y pose
     relative_pose = {'x': x_relative, 'y': y_relative}
-    print(relative_pose)
     target_pose = []
 
     # location of object in the world frame using rotation matrix

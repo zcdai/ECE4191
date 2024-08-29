@@ -66,8 +66,6 @@ class BallerRover():
 
             # Extract sorted target poses
             sorted_target_poses = [target[0] for target in sorted_targets_with_distances]
-            for target in sorted_target_poses:
-                target[1] = -target[1]
                 
         return sorted_target_poses
 
@@ -80,6 +78,8 @@ class BallerRover():
     def primitive_path(self, new_pos):
         x_delta = new_pos[0] - self.pos[0]
         y_delta = new_pos[1] - self.pos[1]
+
+        print(x_delta, y_delta)
         running_error = np.array([0.0, 0.0])
 
         if y_delta > 0:
@@ -96,19 +96,26 @@ class BallerRover():
         elif x_delta < 0:
             running_error += self.test_set_error(180, resulting_angle)
 
-        if y_delta > 0:
-            self.set_angle(90)
-            self.drive(distance=y_delta - running_error[1])
-        elif y_delta < 0:
-            self.set_angle(-90)
-            self.drive(distance=-y_delta + running_error[1])
+        print(running_error)
 
+
+        dy_to_travel = abs(y_delta - running_error[1])
+        if dy_to_travel > 0:
+            self.set_angle(90)
+
+        elif dy_to_travel < 0:
+            self.set_angle(-90)
+
+        self.drive(distance=dy_to_travel)
+
+        dx_to_travel = abs(x_delta - running_error[0])
         if x_delta > 0:
             self.set_angle(0)
-            self.drive(distance=x_delta - running_error[0])
+
         elif x_delta < 0:
             self.set_angle(180)
-            self.drive(distance=-x_delta + running_error[0])
+
+        self.drive(distance=dx_to_travel)
 
 
 
