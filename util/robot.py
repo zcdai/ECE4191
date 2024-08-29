@@ -153,6 +153,7 @@ class BallerRover():
 
 
         self.angle += angle_delta
+        self.angle = self.angle % 360
         self.pos = self.rotate_point(angle_delta, pivot_point)
 
     """Calculates the new position of the robot after rotating around a pivot point
