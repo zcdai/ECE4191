@@ -50,7 +50,7 @@ class BallerRover():
 
         cap.release() 
 
-        bounding_boxes, bbox_img = yolo.detect_single_image(frame)
+        bounding_boxes, bbox_img = yolo.detect_single_image(frame, conf_threshold=0.7)
         robot_pose = [self.pos[0], self.pos[1], self.angle]
 
         target_poses = []
@@ -74,7 +74,14 @@ class BallerRover():
 
             # Extract sorted target poses
             sorted_target_poses = [target[0] for target in sorted_targets_with_distances]
-                
+            if len(sorted_target_poses) > 2:
+                # Delete all elements except the first one
+                del sorted_target_poses[1:]
+            
+            dist_y = sorted_target_poses[0][1] - self.pos[1]
+            if dist_y > 2:
+                sorted_target_poses[0][1] = 2
+
         return sorted_target_poses
 
     def get_closest_ball(self):
