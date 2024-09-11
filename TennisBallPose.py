@@ -66,7 +66,7 @@ def estimate_pose(camera_matrix, obj_info, robot_pose):
     #print(f'delta_x_world: {delta_x_world}, delta_y_world: {delta_y_world}')
     #print(f'target_pose: {target_pose}')
     
-    return target_pose
+    return target_pose, relative_pose
 
 if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
