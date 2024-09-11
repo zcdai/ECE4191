@@ -4,8 +4,8 @@ import numpy as np
 from copy import deepcopy
 from ultralytics import YOLO
 from ultralytics.utils import ops
-from picamera import PiCamera
-from picamera.array import PiRGBArray
+from picamera2 import Picamera2, Preview
+import time
 import time
 
 class Detector:
@@ -83,7 +83,7 @@ if __name__ == '__main__':
     yolo = Detector('/path/to/your/yolo/model.pt')
 
     # Initialize the PiCamera
-    camera = PiCamera()
+    camera = Picamera2()
     # Configure the camera
     config = camera.create_preview_configuration(main={"size": (640, 480)})
     camera.configure(config)
