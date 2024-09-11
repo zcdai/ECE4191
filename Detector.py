@@ -85,7 +85,7 @@ if __name__ == '__main__':
     # Initialize the PiCamera
     camera = Picamera2()
     # Configure the camera
-    config = camera.create_preview_configuration(main={"size": (640, 480)})
+    config = camera.create_preview_configuration(main={"size": (1280, 720),'format': 'RGB888'})
     camera.configure(config)
 
     # Start the camera
@@ -94,10 +94,9 @@ if __name__ == '__main__':
     while True:
         # Capture a frame
         frame = camera.capture_array()
-        print(frame)
 
         # Perform object detection
-        bboxes, img_out = yolo.detect_single_image(frame, conf_threshold=0.7)
+        bboxes, img_out = yolo.detect_single_image(frame, conf_threshold=0.2)
 
         # Display the output with detected bounding boxes
         cv2.imshow('YOLO Detection', img_out)
