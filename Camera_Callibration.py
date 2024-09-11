@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import os
+from picamera2 import Picamera2, Preview
 
 # Set up the folder to save the calibration images
 save_folder = 'calibration_images'
