@@ -57,7 +57,7 @@ class BallerRover():
         distances = []
 
         for detection in bounding_boxes:
-            target_pose = estimate_pose(camera_matrix, detection, robot_pose)
+            target_pose, _ = estimate_pose(camera_matrix, detection, robot_pose)
             print(f"Detected {detection[0]} at {target_pose}")
             target_poses.append(target_pose)
 
