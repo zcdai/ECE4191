@@ -80,7 +80,7 @@ class Detector:
 
 if __name__ == '__main__':
     # Initialize the YOLO model
-    yolo = Detector('/path/to/your/yolo/model.pt')
+    yolo = Detector('/home/ECE4191/ECE4191/YOLO/Model/best.pt')
 
     # Initialize the PiCamera
     camera = Picamera2()
@@ -91,15 +91,10 @@ if __name__ == '__main__':
     # Start the camera
     camera.start()
 
-    # Allow the camera to warm up
-    print("Warming up camera...")
-    camera.start_preview()
-    time.sleep(2)
-    camera.stop_preview()
-
     while True:
         # Capture a frame
         frame = camera.capture_array()
+        print(frame)
 
         # Perform object detection
         bboxes, img_out = yolo.detect_single_image(frame, conf_threshold=0.7)
