@@ -16,6 +16,12 @@ def m1():
 
     bot.return_to_origin()
 
+
+def m2():
+    bot = BallerRover()
+    while True:
+        bot.probe()
+
  
 if __name__ == "__main__":
     bot = BallerRover(pos=[0, 0])

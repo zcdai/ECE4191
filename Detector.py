@@ -4,7 +4,9 @@ import numpy as np
 from copy import deepcopy
 from ultralytics import YOLO
 from ultralytics.utils import ops
-
+from picamera2 import Picamera2, Preview
+import time
+import time
 
 class Detector:
     def __init__(self, model_path):
@@ -65,6 +67,7 @@ class Detector:
             boxes = prediction.boxes
             for box in boxes:
                 confidence = box.conf[0]  # Confidence score of the detection
+                print(confidence)
                 if confidence >= conf_threshold:
                     # bounding format in [x, y, width, height]
                     box_cord = box.xywh[0]
@@ -77,38 +80,33 @@ class Detector:
 
 if __name__ == '__main__':
     # Initialize the YOLO model
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    yolo = Detector(f'{script_dir}/YOLO/Model/best (1).pt')
+    yolo = Detector('/home/ECE4191/ECE4191/YOLO/Model/best.pt')
 
-    # Open the video capture (0 is usually the default camera)
-    cap = cv2.VideoCapture(0)
+    # Initialize the PiCamera
+    camera = Picamera2()
+    # Configure the camera
+    config = camera.create_preview_configuration(main={"size": (1280, 720),'format': 'RGB888'})
+    camera.configure(config)
 
-    if not cap.isOpened():
-        print("Error: Could not open camera.")
-        exit()
+    # Start the camera
+    camera.start()
 
     while True:
-        # Read a frame from the camera
-        ret, frame = cap.read()
-
-        if not ret:
-            print("Error: Could not read frame.")
-            break
-
-        # Resize the frame to the desired size (e.g., 640x480)
-        resized_frame = cv2.resize(frame, (640, 480))
+        # Capture a frame
+        frame = camera.capture_array()
 
         # Perform object detection
-        bboxes, img_out = yolo.detect_single_image(resized_frame,conf_threshold=0.7)
+        bboxes, img_out = yolo.detect_single_image(frame, conf_threshold=0.2)
 
         # Display the output with detected bounding boxes
         cv2.imshow('YOLO Detection', img_out)
-
 
         # Break the loop if 'q' is pressed
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
-    # Release the capture and close any OpenCV windows
-    cap.release()
+    # Close any OpenCV windows
     cv2.destroyAllWindows()
+
+    #stop the camera
+    camera.stop()

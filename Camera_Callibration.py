@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import os
+from picamera2 import Picamera2, Preview
 
 # Set up the folder to save the calibration images
 save_folder = 'calibration_images'
@@ -19,15 +20,19 @@ objp *= square_size
 objpoints = []  # 3d point in real-world space
 imgpoints = []  # 2d points in image plane
 
-# Initialize video capture (use 0 for the default camera)
-cap = cv2.VideoCapture(1)
+# Initialize the PiCamera
+camera = Picamera2()
+# Configure the camera
+config = camera.create_preview_configuration(main={"size": (1280, 720),'format': 'RGB888'})
+camera.configure(config)
+
+# Start the camera
+camera.start()
 
 image_count = 0
 while True:
-    # Capture frame-by-frame
-    ret, frame = cap.read()
-    if not ret:
-        break
+    # Capture a frame
+    frame = camera.capture_array()
 
     # Convert to grayscale
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -61,7 +66,8 @@ while True:
         break
 
 # When everything done, release the capture and close windows
-cap.release()
+#stop the camera
+camera.stop()
 cv2.destroyAllWindows()
 
 # Perform camera calibration
@@ -91,3 +97,23 @@ if image_count > 0:
     cv2.imshow('Undistorted Image', dst)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+
+
+# Load the calibration data
+calibration_data = np.load('camera_calibration.npz')
+
+# Extract the camera matrix and distortion coefficients
+camera_matrix = calibration_data['camera_matrix']
+dist_coeffs = calibration_data['dist_coeffs']
+
+# Extract rotation and translation vectors
+rvecs = calibration_data['rvecs']
+tvecs = calibration_data['tvecs']
+
+print(camera_matrix)
+
+# save the intrinsic parameters 
+dataDir = "{}/Params/".format(os.getcwd())
+print("\nIntrinsic parameters:\n", camera_matrix)
+fileNameI = "{}intrinsic.txt".format(dataDir)
+np.savetxt(fileNameI, camera_matrix, delimiter=',')
