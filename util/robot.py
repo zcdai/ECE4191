@@ -83,10 +83,7 @@ class BallerRover():
             return self.ball_pos.pop()
         except IndexError:
             return None
-
     
-
-    # TODO: There is a problem with calculating the path, since the robot moves during rotation, it is not a simple trigonometric calculation
     def direct_path(self, new_pos):
         x_delta = new_pos[0] - self.pos[0]
         y_delta = new_pos[1] - self.pos[1]
@@ -113,24 +110,16 @@ class BallerRover():
         elif angle_delta < -180:
             angle_delta += 360
 
-        c_l = 0.525/180
-        c_r = 0.696/180
-
-        pivot_point = self.pos[0] + np.sin(np.radians(self.angle))*self.diameter/2, self.pos[1] - np.cos(np.radians(self.angle))*self.diameter/2
 
         if angle_delta < 0:
-            self.drive('R', -angle_delta * c_r)
+            self.drive('R', -angle_delta)
 
         else:   
-            self.drive('L', angle_delta * c_l)
+            self.drive('L', angle_delta)
 
 
         self.angle += angle_delta
         self.angle = self.angle % 360
-        self.pos = self.rotate_point(angle_delta, pivot_point)
-
-    """Calculates the new position of the robot after rotating around a pivot point
-    This is only during rotation, where the bot rotates around the right wheel"""
 
     def drive(self, direction='F', distance=1):
         send_commands(direction, distance)
@@ -156,6 +145,7 @@ class BallerRover():
 
     def center_ball(self):
         """Get a image of the ball once close to it, center the ball in the image"""
+        balls = self.get_image()
         pass
 
     def nav2ball(self, ball_pos):
