@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import os
-from picamera2 import Picamera2, Preview
+from picamera2 import Picamera2
 
 # Set up the folder to save the calibration images
 save_folder = 'calibration_images'
@@ -41,6 +41,7 @@ while True:
    
     # If found, draw and display the corners
     if ret:
+        print(ret)
         corners2 = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), 
                                     criteria=(cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001))
         cv2.drawChessboardCorners(frame, chessboard_size, corners2, ret)

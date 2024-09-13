@@ -1,22 +1,39 @@
-import serial
+import Rpi.GPIO as GPIO
 import time
 
-try:
-    ser = serial.Serial(
-        port='/dev/serial0',
-        baudrate=9600,
-        timeout=1
-    )
-    print("Serial port opened successfully")
-except Exception as e:
-    print(f"Error opening serial port: {e}")
-    exit()
+class Motor:
+    def __init__(self, signal, dir) -> None:
+        self.signal = signal
+        self.dir = dir
+        self.enable()
 
-def read():
-    return ser.read().decode('utf-8')
+    def enable(self):
+        GPIO.setup(self.signal, GPIO.OUT)
+        GPIO.setup(self.dir, GPIO.OUT)
+
+    def forward(self):
+        GPIO.output(self.dir, GPIO.HIGH)
+        GPIO.output(self.signal, GPIO.HIGH)
+
+    def backward(self):
+        GPIO.output(self.dir, GPIO.LOW)
+        GPIO.output(self.signal, GPIO.HIGH)
     
-def send_commands(cmd1, cmd2):
-    ser.write(f'{cmd1}{cmd2}\n'.encode('utf-8'))
-    ser.flush()  # Ensure the buffer is clear
-    print(f"Sent: {cmd1}, {cmd2}")
-    time.sleep(0.5)
+    def stop(self):
+        GPIO.output(self.signal, GPIO.LOW)
+
+L_MOTOR = Motor(12, 17)
+R_MOTOR = Motor(13, 27)
+PERIOD = 0.01
+
+
+def straight_drive(dir='F', dist=1):
+    if dir == 'F':
+        L_MOTOR.forward()
+        R_MOTOR.forward()
+    else:
+        L_MOTOR.backward()
+        R_MOTOR.backward()
+    time.sleep(dist)
+    L_MOTOR.stop()
+    R_MOTOR.stop()
