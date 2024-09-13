@@ -35,11 +35,10 @@ while True:
     frame = camera.capture_array()
 
     # Convert to grayscale
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
+    gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
     # Find the chessboard corners
     ret, corners = cv2.findChessboardCorners(gray, chessboard_size, None)
-
+   
     # If found, draw and display the corners
     if ret:
         corners2 = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), 
