@@ -1,6 +1,5 @@
 import RPi.GPIO as GPIO
 import time
-
 GPIO.setmode(GPIO.BCM)
 
 class Motor:
@@ -21,20 +20,25 @@ class Motor:
 
     def forward(self):
         GPIO.output(self.dir, GPIO.HIGH)
-        for _ in range(100):
+        for _ in range(10000):
             self._pwm(self.signal)
+
 
     def backward(self):
         GPIO.output(self.dir, GPIO.LOW)
-        self._pwm(self.signal)    
+        for _ in range(1000):
+            self._pwm(self.signal) 
 
     def stop(self):
         GPIO.output(self.signal, GPIO.LOW)
 
-L_MOTOR = Motor(12, 17)
-R_MOTOR = Motor(13, 27)
-PERIOD = 0.001
+L_MOTOR = Motor(13, 17)
+R_MOTOR = Motor(12, 27)
+PERIOD = 0.05
 
+class MotorPair:
+    def __init__(self, l, r) -> None:
+        pass
 
 def straight_drive(dir='F', dist=1):
     if dir == 'F':
@@ -49,5 +53,18 @@ def straight_drive(dir='F', dist=1):
 
 
 if __name__ == '__main__':
-    L_MOTOR.forward()
-    R_MOTOR.forward()
+    # GPIO.setup(12, GPIO.OUT)
+    # GPIO.setup(13, GPIO.OUT)
+    # def _pwm():
+    #     GPIO.output(12, GPIO.HIGH)
+    #     GPIO.output(13, GPIO.HIGH)
+    #     time.sleep(PERIOD)
+    #     GPIO.output(12, GPIO.LOW)
+    #     GPIO.output(13, GPIO.HIGH)
+    #     time.sleep(PERIOD)
+    # for _ in range(10000):
+    #     _pwm()
+
+    # R_MOTOR.forward()
+    L_MOTOR.backward()
+ 
