@@ -7,7 +7,7 @@ from TennisBallPose import estimate_pose
 import os
 import cv2
 import time
-from comm import send_commands
+import comm
 
 
 class BallerRover():
@@ -172,3 +172,6 @@ class BallerRover():
     def pickup():
         pass
         # pickup the ball
+
+if __name__ == '__main__':
+    bot = BallerRover()
