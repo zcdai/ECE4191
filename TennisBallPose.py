@@ -6,6 +6,7 @@ import ast
 import cv2
 from Detector import Detector
 import math
+from picamera2 import Picamera2
 
 
 # list of target fruits and vegs types
@@ -76,22 +77,22 @@ if __name__ == "__main__":
     camera_matrix = np.loadtxt(fileK, delimiter=',')
 
     # Initialize YOLO model
-    model_path = f'{script_dir}/YOLO/Model/best (1).pt'
+    model_path = f'{script_dir}/YOLO/Model/best.pt'
     yolo = Detector(model_path)
 
-    # Open video capture (0 for default camera)
-    cap = cv2.VideoCapture(0)
+    # Initialize the PiCamera
+    camera = Picamera2()
+    # Configure the camera
+    config = camera.create_preview_configuration(main={"size": (1280, 720),'format': 'RGB888'})
+    camera.configure(config)
 
-    if not cap.isOpened():
-        print("Error: Could not open camera.")
-        exit()
+    # Start the camera
+    camera.start()
 
     try:
         while True:
-            ret, frame = cap.read()
-            if not ret:
-                print("Error: Could not read frame.")
-                break
+            # Capture a frame
+            frame = camera.capture_array()
 
             bounding_boxes, bbox_img = yolo.detect_single_image(frame)
             robot_pose = [0, 0, 0]  # Assuming robot_pose is [x, y, theta], replace with actual robot pose if available
@@ -106,5 +107,5 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("Interrupted by user.")
     finally:
-        cap.release()
+        camera.stop()
         cv2.destroyAllWindows()
