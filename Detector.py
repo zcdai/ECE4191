@@ -13,7 +13,7 @@ class Detector:
         self.model = YOLO(model_path)
 
         self.class_colour = {
-            'Balls': (0, 255, 0),
+            'Ball': (0, 255, 0),
         }
 
     def detect_single_image(self, img, conf_threshold=0.8):
