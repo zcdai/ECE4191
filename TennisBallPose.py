@@ -11,7 +11,7 @@ from picamera2 import Picamera2
 
 # list of target fruits and vegs types
 # Make sure the names are the same as the ones used in your YOLO model
-TARGET_TYPES = ['Balls']
+TARGET_TYPES = ['Ball']
 
 
 def estimate_pose(camera_matrix, obj_info, robot_pose):
@@ -36,7 +36,7 @@ def estimate_pose(camera_matrix, obj_info, robot_pose):
     # there are 8 possible types of fruits and vegs
     ######### Replace with your codes #########
     # TODO: measure actual sizes of targets [width, depth, height] and update the dictionary of true target dimensions
-    target_dimensions_dict = {'Balls': [0.067,0.067,0.067]}
+    target_dimensions_dict = {'Ball': [0.067,0.067,0.067]}
     #########
 # estimate target pose using bounding box and robot pose
     target_class = obj_info[0]     # get predicted target label of the box
