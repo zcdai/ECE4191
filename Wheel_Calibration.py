@@ -92,29 +92,3 @@ def calibrateBaseline(scale):
     print("The baseline parameter is estimated as {:.6f} m.".format(baseline))
 
     return baseline
-
-
-if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--ip", metavar='', type=str, default='localhost')
-    parser.add_argument("--port", metavar='', type=int, default=40000)
-    args, _ = parser.parse_known_args()
-
-    ppi = PenguinPi(args.ip,args.port)
-
-    # calibrate pibot scale and baseline
-    dataDir = "{}/param/".format(os.getcwd())
-
-    print('Calibrating PiBot scale...\n')
-    scale = calibrateWheelRadius()
-    fileNameS = "{}scale.txt".format(dataDir)
-    np.savetxt(fileNameS, np.array([scale]), delimiter=',')
-
-    print('Calibrating PiBot baseline...\n')
-    baseline = calibrateBaseline(scale)
-    fileNameB = "{}baseline.txt".format(dataDir)
-    np.savetxt(fileNameB, np.array([baseline]), delimiter=',')
-
-    print('Finished calibration')
