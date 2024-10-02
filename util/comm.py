@@ -5,8 +5,7 @@ import time
 ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)  # Replace ttyUSB0 with the actual port
 time.sleep(2)  # Give some time to establish the connection
 
-
-commands = ['F500', 'B500', 'R500', 'L500']  # Commands to send
+pins = 4, 26
 
 def send_command(dir='F', ticks='500'):
     command = f"{dir}{ticks}"
@@ -23,4 +22,7 @@ def _wait_for_confirmation(expected_command):
             received_data = ser.readline().decode().strip()
             if received_data == expected_command:
                 confirmation_count += 1   
+                
     print(f"Confirmation {confirmation_count}/{confirmations_needed} received for {expected_command}")
+
+def 
