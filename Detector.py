@@ -27,7 +27,7 @@ class Detector:
             img_out: image with bounding boxes and class labels drawn on
         """
         bboxes = self._get_bounding_boxes(img, conf_threshold)
-
+        
         img_out = deepcopy(img)
 
         # draw bounding boxes on the image
