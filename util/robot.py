@@ -7,7 +7,7 @@ from TennisBallPose import estimate_pose
 import os
 import cv2
 import time
-from comm import straight_drive, rotate as pi_rotate
+from comm import send_command
 
 
 class BallerRover():
@@ -112,21 +112,30 @@ class BallerRover():
 
 
         if angle_delta < 0:
-            pi_rotate('R', -angle_delta)
+            self.drive('R', -angle_delta * c_r)
 
         else:   
-            pi_rotate('L', angle_delta)
+            self.drive('L', angle_delta * c_l)
 
 
         self.angle += angle_delta
         self.angle = self.angle % 360
 
     def drive(self, direction='F', distance=1):
-        straight_drive(direction, distance)
+        #TODO: find constant for forward and rotation
+        forward_const = 1200
+        ticks = distance*forward_const
+
+        send_command(direction, ticks)
         if direction == 'F':
             dx = distance * np.cos(np.radians(self.angle))
             dy = distance * np.sin(np.radians(self.angle))
             self.pos = [self.pos[0] + dx, self.pos[1] + dy]
+
+        if direction == 'B':
+            dx = distance * np.cos(np.radians(self.angle))
+            dy = distance * np.sin(np.radians(self.angle))
+            self.pos = [self.pos[0] - dx, self.pos[1] - dy]
 
 
     def probe(self):
