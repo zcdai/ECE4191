@@ -33,8 +33,8 @@ def get_distance():
     return round(distance, 2)
 
 # Initialize serial communication (make sure the port matches your setup)
-ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)  # Replace ttyUSB0 with the actual port
-time.sleep(2)  # Give some time to establish the connection
+# ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)  # Replace ttyUSB0 with the actual port
+# time.sleep(2)  # Give some time to establish the connection
 
 
 
@@ -56,3 +56,12 @@ def _wait_for_confirmation(expected_command):
                 
     print(f"Confirmation {confirmation_count}/{confirmations_needed} received for {expected_command}")
 
+if __name__ == '__main__':
+    try:
+        while True:
+            dist = get_distance()
+            print(f"Distance: {dist} cm")
+            time.sleep(1)  # Delay between measurements
+    except KeyboardInterrupt:
+        print("Measurement stopped by user")
+        GPIO.cleanup()
