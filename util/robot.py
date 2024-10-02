@@ -124,7 +124,12 @@ class BallerRover():
     def drive(self, direction='F', distance=1):
         #TODO: find constant for forward and rotation
         forward_const = 1200
-        ticks = distance*forward_const
+        rotation_const = 2000
+        if direction == 'R' or direction == 'L':
+            ticks = distance*rotation_const
+        else:
+            ticks = distance*forward_const
+
 
         send_command(direction, ticks)
         if direction == 'F':
@@ -179,3 +184,4 @@ class BallerRover():
 
 if __name__ == '__main__':
     bot = BallerRover()
+    bot.drive('F', 1)
