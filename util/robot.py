@@ -19,9 +19,6 @@ class BallerRover():
         self.diameter = diameter
 
     def get_image(self):
-        while not self.check_stopped():
-            time.sleep(1)
-
         # get image from camera and save positions of any balls
         # check if balls are a reasonable distance away (< hypotenuse of tennis quadrant)
         # maybe sort by distance? longest to shortest
@@ -33,7 +30,7 @@ class BallerRover():
         camera_matrix = np.loadtxt(fileK, delimiter=',')
 
         # Initialize YOLO model
-        model_path = f'{script_dir}/../YOLO/Model/best (1).pt'
+        model_path = f'{script_dir}/../YOLO/Model/best.pt'
         yolo = Detector(model_path)
 
         # Open video capture (0 for default camera)
@@ -184,6 +181,5 @@ class BallerRover():
 
 if __name__ == '__main__':
     bot = BallerRover()
-    print(bot.angle)
-    bot.direct_path([1,-1])
-    print(bot.angle)
+    while True:
+        print(bot.get_image())
