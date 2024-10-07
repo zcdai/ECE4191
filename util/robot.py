@@ -8,6 +8,7 @@ import os
 import cv2
 import time
 from comm import send_command
+from picamera2 import Picamera2
 
 
 class BallerRover():
@@ -17,6 +18,12 @@ class BallerRover():
         self.angle = angle
         self.ball_pos = []
         self.diameter = diameter
+        self.camera = Picamera2()
+        config = self.camera.create_preview_configuration(main={"size": (1280, 720),'format': 'RGB888'})
+        self.camera.configure(config)
+
+        # Start the camera
+        self.camera.start()
 
     def get_image(self, force_local=False):
         # get image from camera and save positions of any balls
@@ -34,12 +41,7 @@ class BallerRover():
         yolo = Detector(model_path)
 
         # Open video capture (0 for default camera)
-        cap = cv2.VideoCapture(0)
-
-        # Capture a single image
-        ret, frame = cap.read()
-
-        cap.release() 
+        frame = self.camera.capture_array()
 
         bounding_boxes, bbox_img = yolo.detect_single_image(frame, conf_threshold=0.7)
         robot_pose = [self.pos[0], self.pos[1], self.angle]
@@ -163,12 +165,16 @@ class BallerRover():
 
     def deposit(lift_gate=True):
         # lift if True lower if False
+        # lift gate is 180, lower is 90
         pass
 
 
 if __name__ == '__main__':
     bot = BallerRover()
-    bot.direct_path([1, 0])
-    print(bot.pos)
+    bot.direct_path([1,0])
+    bot.direct_path([1,1])
+    bot.direct_path([0,1])
     bot.return_to_origin()
+
+
 

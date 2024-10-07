@@ -8,10 +8,19 @@ GPIO.setmode(GPIO.BCM)
 # Define GPIO pins
 TRIG_PIN = 4
 ECHO_PIN = 26
+BOOM_PIN = 18
+SCOOP_PIN = 19 
 
 # Set up GPIO pins
 GPIO.setup(TRIG_PIN, GPIO.OUT)
 GPIO.setup(ECHO_PIN, GPIO.IN)
+GPIO.setup(BOOM_PIN, GPIO.OUT)
+GPIO.setup(SCOOP_PIN, GPIO.OUT)
+
+pwm_boom = GPIO.PWM(BOOM_PIN, 50)
+pwm_scoop = GPIO.PWM(SCOOP_PIN, 50)
+pwm_boom.start(0)
+pwm_scoop.start(0)
 
 def get_distance():
     # Ensure the trigger pin is set low
@@ -36,6 +45,26 @@ def get_distance():
 ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)  # Replace ttyUSB0 with the actual port
 time.sleep(2)  # Give some time to establish the connection
 
+def set_servo_angle(angle, boom):
+    """
+    Set the servo to the specified angle.
+    
+    :param angle: Angle to set the servo to (0 to 180 degrees)
+    """
+    # Duty cycle calculation for the servo
+    duty_cycle = 2 + (angle / 18)  # 2% to 12% duty cycle for 0 to 180 degrees
+    if boom:
+        pwm_boom.ChangeDutyCycle(duty_cycle)
+        time.sleep(0.5)  # Allow time for the servo to move to the position
+        pwm_boom.ChangeDutyCycle(0)  # Stop sending the PWM signal to avoid jitter
+    else:
+        pwm_scoop.ChangeDutyCycle(duty_cycle)
+        duty_cycle -= 6
+        duty_cycle = max(duty_cycle, 2)
+        time.sleep(1.5)  # Allow time for the servo to move to the position
+        pwm_scoop.ChangeDutyCycle(0)  # Stop sending the PWM signal to avoid jitter
+
+
 
 
 def send_command(dir='F', ticks='500'):
@@ -57,11 +86,4 @@ def _wait_for_confirmation(expected_command):
     print(f"Confirmation {confirmation_count}/{confirmations_needed} received for {expected_command}")
 
 if __name__ == '__main__':
-    try:
-        while True:
-            dist = get_distance()
-            print(f"Distance: {dist} cm")
-            time.sleep(1)  # Delay between measurements
-    except KeyboardInterrupt:
-        print("Measurement stopped by user")
-        GPIO.cleanup()
+    set_servo_angle(0, False)
