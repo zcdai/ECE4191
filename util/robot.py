@@ -154,32 +154,15 @@ class BallerRover():
         x_obj, y_obj = target_ball
         angle_to_object = np.arctan2(y_obj, x_obj)
         self.rotate(np.degrees(angle_to_object))
-    
 
-    def nav2ball(self, ball_pos):
-        ball_x, ball_y = ball_pos
-        bot_x, bot_y = self.pos
-        x_delta, y_delta = ball_x - bot_x, ball_y - bot_y
-        if abs(ball_x) > abs(ball_y):
-            self.direct_path([ball_x, bot_y])
-            if y_delta > 0:
-                self.set_angle(90)
-            else:
-                self.set_angle(-90)
-        else:
-            self.direct_path([bot_x, ball_y])
-            if x_delta > 0:
-                self.set_angle(0)
-            else:
-                self.set_angle(180)
-
-        new_pos = self.get_image()
-        self.primitive_path(new_pos[0])
-
-
-    def pickup():
+    def pickup(lift_scoop=True):
+        # lift if True lower if False
         pass
-        # pickup the ball
+
+    def deposit(lift_gate=True):
+        # lift if True lower if False
+        pass
+
 
 if __name__ == '__main__':
     bot = BallerRover()
