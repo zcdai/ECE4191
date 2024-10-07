@@ -79,12 +79,14 @@ class BallerRover():
         except IndexError:
             return None
     
-    def direct_path(self, new_pos):
+    def direct_path(self, new_pos, shortstop=False):
         x_delta = new_pos[0] - self.pos[0]
         y_delta = new_pos[1] - self.pos[1]
-        angle = -np.arctan2(x_delta, y_delta) * 180 / np.pi
-        self.set_angle(angle)
-        distance = np.sqrt(x_delta ** 2 + y_delta ** 2) * 0.9   # scale down to allow for centering
+        angle = np.arctan2(x_delta, y_delta)
+        self.set_angle(np.degrees(angle))
+        distance = np.sqrt(x_delta ** 2 + y_delta ** 2)
+        if shortstop:
+            distance *= 0.9   # scale down to allow for centering
         self.drive('F', distance)
 
     def return_to_origin(self):
@@ -166,5 +168,7 @@ class BallerRover():
 
 if __name__ == '__main__':
     bot = BallerRover()
-    while True:
-        print(bot.get_image())
+    bot.direct_path([1, 0])
+    print(bot.pos)
+    bot.return_to_origin()
+
