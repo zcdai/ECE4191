@@ -84,9 +84,9 @@ class BallerRover():
     def direct_path(self, new_pos, shortstop=False):
         x_delta = new_pos[0] - self.pos[0]
         y_delta = new_pos[1] - self.pos[1]
-        angle = np.arctan2(x_delta, y_delta)
+        angle = np.arctan2(y_delta, x_delta)
         self.set_angle(np.degrees(angle))
-        distance = np.sqrt(x_delta ** 2 + y_delta ** 2)
+        distance = np.hypot(x_delta, y_delta)
         if shortstop:
             distance *= 0.9   # scale down to allow for centering
         self.drive('F', distance)
@@ -154,10 +154,13 @@ class BallerRover():
     def center_ball(self):
         """Get a image of the ball once close to it, center the ball in the image"""
         balls = self.get_image(True)
-        target_ball = balls[0]
-        x_obj, y_obj = target_ball
-        angle_to_object = np.arctan2(y_obj, x_obj)
-        self.rotate(np.degrees(angle_to_object))
+        if balls:  
+            target_ball = balls[0]
+            x_obj, y_obj = target_ball
+            angle_to_object = np.arctan2(y_obj, x_obj)
+            self.rotate(np.degrees(angle_to_object))
+        else:
+            self.probe()
 
     def pickup(lift_scoop=True):
         # lift if True lower if False
