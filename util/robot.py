@@ -18,7 +18,7 @@ class BallerRover():
         self.ball_pos = []
         self.diameter = diameter
 
-    def get_image(self):
+    def get_image(self, force_local=False):
         # get image from camera and save positions of any balls
         # check if balls are a reasonable distance away (< hypotenuse of tennis quadrant)
         # maybe sort by distance? longest to shortest
@@ -43,6 +43,8 @@ class BallerRover():
 
         bounding_boxes, bbox_img = yolo.detect_single_image(frame, conf_threshold=0.7)
         robot_pose = [self.pos[0], self.pos[1], self.angle]
+        if force_local:
+            robot_pose = [0, 0, 90]
 
         target_poses = []
         distances = []
@@ -68,10 +70,6 @@ class BallerRover():
             if len(sorted_target_poses) > 2:
                 # Delete all elements except the first one
                 del sorted_target_poses[1:]
-            
-            dist_y = sorted_target_poses[0][1] - self.pos[1]
-            if dist_y > 2:
-                sorted_target_poses[0][1] = 2
 
         return sorted_target_poses
 
@@ -151,8 +149,12 @@ class BallerRover():
 
     def center_ball(self):
         """Get a image of the ball once close to it, center the ball in the image"""
-        balls = self.get_image()
-        pass
+        balls = self.get_image(True)
+        target_ball = balls[0]
+        x_obj, y_obj = target_ball
+        angle_to_object = np.arctan2(y_obj, x_obj)
+        self.rotate(np.degrees(angle_to_object))
+    
 
     def nav2ball(self, ball_pos):
         ball_x, ball_y = ball_pos
