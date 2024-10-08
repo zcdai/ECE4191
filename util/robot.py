@@ -152,6 +152,10 @@ class BallerRover():
         for angle in range(0, 360, 45):  # Rotate in 45 degree increments
             self.set_angle(angle)
             balls = self.get_image()
+            for ball in balls:
+                if self.court_boundary[0][0] < ball[0] < self.court_boundary[0][1] \
+                and self.court_boundary[1][0] < ball[1] < self.court_boundary[1][1]:
+                    self.ball_pos.append(ball)
             if balls:
                 self.ball_pos.extend(balls)
 
