@@ -149,6 +149,8 @@ class BallerRover():
 
 
     def probe(self):
+        if self.ball_pos:
+            return
         for angle in range(0, 360, 45):  # Rotate in 45 degree increments
             self.set_angle(angle)
             balls = self.get_image()
@@ -158,17 +160,21 @@ class BallerRover():
                     self.ball_pos.append(ball)
             if balls:
                 self.ball_pos.extend(balls)
+                return
 
 
 
     def center_ball(self):
         """Get a image of the ball once close to it, center the ball in the image"""
-        balls = self.get_image(True)
+        balls = self.get_image(force_local=True)
         if balls:  
             target_ball = balls[0]
             x_obj, y_obj = target_ball
             angle_to_object = np.arctan2(y_obj, x_obj)
+            distance_to_object = np.hypot(x_obj, y_obj)
+            print(f"Distance to object: {distance_to_object}")
             self.rotate(np.degrees(angle_to_object))
+            return distance_to_object
         else:
             self.probe()
 
