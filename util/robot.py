@@ -151,7 +151,16 @@ class BallerRover():
     def probe(self):
         if self.ball_pos:
             return
-        for _ in range(8):  # Rotate in 45 degree increments
+        balls = self.get_image()
+        for ball in balls:
+            if self.court_boundary[0][0] < ball[0] < self.court_boundary[0][1] \
+            and self.court_boundary[1][0] < ball[1] < self.court_boundary[1][1]:
+                self.ball_pos.append(ball)
+        if balls:
+            self.ball_pos.extend(balls)
+            return
+        
+        while not self.ball_pos:  # Rotate in 45 degree increments
             self.rotate(45)
             balls = self.get_image()
             for ball in balls:
