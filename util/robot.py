@@ -7,23 +7,29 @@ from TennisBallPose import estimate_pose
 import os
 import cv2
 import time
-from comm import send_command
+from comm import get_distance, send_command, set_servo_angle
 from picamera2 import Picamera2
 
 
 class BallerRover():
-    def __init__(self, pos=[0, 0], angle=90, diameter=0.2286):
+    def __init__(self, pos=[0, 0], angle=90, bottom_left=True):
         self.origin = pos
         self.pos = pos
         self.angle = angle
         self.ball_pos = []
-        self.diameter = diameter
+        self.court_boundary = [[0, 4], [0, 5.4]]
+        self.deposit_pos = [3.8, 5.4]
+        self.deposit_angle = 180
+
         self.camera = Picamera2()
         config = self.camera.create_preview_configuration(main={"size": (1280, 720),'format': 'RGB888'})
         self.camera.configure(config)
 
+
         # Start the camera
         self.camera.start()
+
+        print("Initialized BallerRover")
 
     def get_image(self, force_local=False):
         # get image from camera and save positions of any balls
@@ -143,31 +149,58 @@ class BallerRover():
 
 
     def probe(self):
+        if self.ball_pos:
+            return
         for angle in range(0, 360, 45):  # Rotate in 45 degree increments
             self.set_angle(angle)
             balls = self.get_image()
+            for ball in balls:
+                if self.court_boundary[0][0] < ball[0] < self.court_boundary[0][1] \
+                and self.court_boundary[1][0] < ball[1] < self.court_boundary[1][1]:
+                    self.ball_pos.append(ball)
             if balls:
                 self.ball_pos.extend(balls)
+                return
 
 
 
     def center_ball(self):
         """Get a image of the ball once close to it, center the ball in the image"""
-        balls = self.get_image(True)
-        target_ball = balls[0]
-        x_obj, y_obj = target_ball
-        angle_to_object = np.arctan2(y_obj, x_obj)
-        self.rotate(np.degrees(angle_to_object))
+        balls = self.get_image(force_local=True)
+        if balls:  
+            target_ball = balls[0]
+            x_obj, y_obj = target_ball
+            angle_to_object = np.arctan2(y_obj, x_obj)
+            distance_to_object = np.hypot(x_obj, y_obj)
+            print(f"Distance to object: {distance_to_object}")
+            self.rotate(np.degrees(angle_to_object))
+            return distance_to_object
+        else:
+            self.probe()
 
-    def pickup(lift_scoop=True):
-        # lift if True lower if False
-        pass
+    def pickup_ball(self):
+        set_servo_angle(180, False)
+        time.sleep(2)
+        set_servo_angle(0, False)        
 
-    def deposit(lift_gate=True):
-        # lift if True lower if False
-        # lift gate is 180, lower is 90
-        pass
+    def lift_boom(self):
+        set_servo_angle(180, True)
+        time.sleep(4)
+        set_servo_angle(90, True)
 
+    def deposit_ball(self):
+        self.direct_path(self.deposit_pos)
+        self.set_angle(self.deposit_angle)
+        self.box_reverse()
+        self.lift_boom()
+        self.direct_path(2, 3)
+
+    def box_reverse(self):
+        # find distance to box
+        distance = get_distance() * 0.9
+        while distance > 0.03:
+            self.drive('B', distance)
+            distance = get_distance() * 0.9
 
 if __name__ == '__main__':
     bot = BallerRover()

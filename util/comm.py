@@ -39,7 +39,7 @@ def get_distance():
     pulse_duration = pulse_end - pulse_start
     # Distance is speed of sound (34300 cm/s) divided by 2 (for round-trip) and multiplied by pulse_duration
     distance = pulse_duration * 17150
-    return round(distance, 2)
+    return round(distance, 2)/100
 
 # Initialize serial communication (make sure the port matches your setup)
 ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)  # Replace ttyUSB0 with the actual port
