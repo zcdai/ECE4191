@@ -45,7 +45,9 @@ def get_distance():
     pulse_duration = pulse_end - pulse_start
     # Distance is speed of sound (34300 cm/s) divided by 2 (for round-trip) and multiplied by pulse_duration
     distance = pulse_duration * 17150
-    return round(distance, 2)/100
+    out = round(distance, 2)/100
+    print(f'Distance to box is:{out}')
+    return out
 
 
 
@@ -65,7 +67,7 @@ def set_servo_angle(angle, boom):
         pwm_scoop.ChangeDutyCycle(duty_cycle)
         duty_cycle -= 6
         duty_cycle = max(duty_cycle, 2)
-        time.sleep(1.5)  # Allow time for the servo to move to the position
+        time.sleep(1.75)  # Allow time for the servo to move to the position
         pwm_scoop.ChangeDutyCycle(0)  # Stop sending the PWM signal to avoid jitter
 
 
@@ -91,4 +93,5 @@ def _wait_for_confirmation(expected_command):
     print(f"Confirmation {confirmation_count}/{confirmations_needed} received for {expected_command}")
 
 if __name__ == '__main__':
-    set_servo_angle(0, False)
+    while True:
+        get_distance()

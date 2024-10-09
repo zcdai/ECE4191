@@ -26,8 +26,10 @@ def m2(bot: BallerRover):
  
 if __name__ == "__main__":
     bot = BallerRover()
-    bot.probe()
-    bot.direct_path(bot.get_closest_ball(), shortstop=True)
-    ball_distance = bot.center_ball()
-    bot.drive('F', ball_distance + 0.1) # overshoot ball a little bit
-    bot.pickup_ball()
+    # bot.probe()
+    # bot.direct_path(bot.get_closest_ball(), shortstop=True)
+    # ball_distance = bot.center_ball()
+    # bot.drive('F', ball_distance + 0.1) # overshoot ball a little bit
+    # bot.pickup_ball()
+    # bot.lift_boom()
+    bot.deposit_ball()
