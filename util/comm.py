@@ -65,9 +65,9 @@ def set_servo_angle(angle, boom):
         pwm_boom.ChangeDutyCycle(0)  # Stop sending the PWM signal to avoid jitter
     else:
         pwm_scoop.ChangeDutyCycle(duty_cycle)
-        duty_cycle -= 6
+        duty_cycle -= 4
         duty_cycle = max(duty_cycle, 2)
-        time.sleep(1.75)  # Allow time for the servo to move to the position
+        time.sleep(1.8)  # Allow time for the servo to move to the position
         pwm_scoop.ChangeDutyCycle(0)  # Stop sending the PWM signal to avoid jitter
 
 
