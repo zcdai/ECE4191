@@ -77,7 +77,7 @@ class BallerRover():
             sorted_target_poses = [target[0] for target in sorted_targets_with_distances]
             if len(sorted_target_poses) > 2:
                 # Delete all elements except the first one
-                del sorted_target_poses[1:]
+                sorted_target_poses = sorted_target_poses[:1]
 
         return sorted_target_poses
 
