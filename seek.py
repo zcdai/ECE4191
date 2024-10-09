@@ -4,7 +4,6 @@ import os
 # Ensure the util directory is in the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'util')))
 from util.robot import BallerRover
-import util.comm as comm
 import util.robot as bot
 
 def m2(bot):
@@ -24,4 +23,8 @@ def m2(bot):
  
 if __name__ == "__main__":
     bot = BallerRover()
-    m2(bot)
+    bot.probe()
+    bot.direct_path(bot.get_closest_ball(), shortstop=True)
+    ball_distance = bot.center_ball()
+    bot.drive('F', ball_distance + 0.1) # overshoot ball a little bit
+    bot.pickup_ball()

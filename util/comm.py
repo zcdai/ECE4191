@@ -2,6 +2,7 @@ import serial
 import time
 import RPi.GPIO as GPIO
 
+GPIO.cleanup()
 # Set GPIO mode
 GPIO.setmode(GPIO.BCM)
 
