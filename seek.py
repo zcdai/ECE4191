@@ -20,6 +20,7 @@ def m2(bot: BallerRover):
             collected_count += 1
             if collected_count == 4:
                 bot.deposit_ball()
+                bot.direct_path([2.5, 3.5])
                 collected_count = 0
 
  

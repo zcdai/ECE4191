@@ -198,13 +198,12 @@ class BallerRover():
         self.set_angle(self.deposit_angle)
         self.box_reverse()
         self.lift_boom()
-        self.direct_path(2, 3)
 
     def box_reverse(self):
         # find distance to box
         distance = get_distance()
         while distance > 0.03:
-            self.drive('B', distance*0.9)
+            self.drive('B', distance*0.7)
             distance = get_distance()
 
 if __name__ == '__main__':
