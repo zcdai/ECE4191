@@ -52,7 +52,7 @@ class BallerRover():
         bounding_boxes, bbox_img = yolo.detect_single_image(frame, conf_threshold=0.7)
         robot_pose = [self.pos[0], self.pos[1], self.angle]
         if force_local:
-            robot_pose = [0, 0, 90]
+            robot_pose = [0, 0, 0]
 
         target_poses = []
         distances = []
@@ -151,8 +151,8 @@ class BallerRover():
     def probe(self):
         if self.ball_pos:
             return
-        for angle in range(0, 360, 45):  # Rotate in 45 degree increments
-            self.set_angle(angle)
+        for _ in range(8):  # Rotate in 45 degree increments
+            self.rotate(45)
             balls = self.get_image()
             for ball in balls:
                 if self.court_boundary[0][0] < ball[0] < self.court_boundary[0][1] \
