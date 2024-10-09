@@ -27,6 +27,7 @@ pwm_scoop = GPIO.PWM(SCOOP_PIN, 50)
 pwm_boom.start(0)
 pwm_scoop.start(0)
 
+
 def get_distance():
     # Ensure the trigger pin is set low
     GPIO.output(TRIG_PIN, False)
@@ -68,7 +69,8 @@ def set_servo_angle(angle, boom):
         pwm_scoop.ChangeDutyCycle(0)  # Stop sending the PWM signal to avoid jitter
 
 
-
+set_servo_angle(0, False)
+set_servo_angle(0, True)
 
 def send_command(dir='F', ticks='500'):
     command = f"{dir}{ticks}"

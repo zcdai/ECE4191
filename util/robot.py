@@ -95,8 +95,8 @@ class BallerRover():
         angle = np.arctan2(y_delta, x_delta)
         self.set_angle(np.degrees(angle))
         distance = np.hypot(x_delta, y_delta)
-        if shortstop:
-            distance *= 0.9   # scale down to allow for centering
+        if shortstop and distance > 0.3:
+            distance -= 0.3   # scale down to allow for centering
         self.drive('F', distance)
 
     def return_to_origin(self):
@@ -161,7 +161,7 @@ class BallerRover():
 
         
         while not self.ball_pos:  # Rotate in 45 degree increments
-            self.rotate(45)
+            self.rotate(-30)
             balls = self.get_image()
             for ball in balls:
                 if self.court_boundary[0][0] < ball[0] < self.court_boundary[0][1] \
@@ -208,11 +208,11 @@ class BallerRover():
 
 if __name__ == '__main__':
     bot = BallerRover()
-    # bot.direct_path([1,0])
-    # print(bot.pos)
+    bot.direct_path([1,0])
+    print(bot.pos)
 
-    # bot.return_to_origin()
+    bot.return_to_origin()
 
-    bot.probe()
+    # bot.probe()
 
 
