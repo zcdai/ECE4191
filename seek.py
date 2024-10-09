@@ -6,7 +6,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'util'))
 from util.robot import BallerRover
 import util.robot as bot
 
-def m2(bot):
+def m2(bot: BallerRover):
     collected_count = 0
     bot.direct_path([2, 2])
     while True:

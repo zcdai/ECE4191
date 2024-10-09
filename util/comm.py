@@ -6,6 +6,10 @@ GPIO.cleanup()
 # Set GPIO mode
 GPIO.setmode(GPIO.BCM)
 
+# Initialize serial communication (make sure the port matches your setup)
+ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)  # Replace ttyUSB0 with the actual port
+time.sleep(2)  # Give some time to establish the connection
+
 # Define GPIO pins
 TRIG_PIN = 4
 ECHO_PIN = 26
@@ -42,9 +46,7 @@ def get_distance():
     distance = pulse_duration * 17150
     return round(distance, 2)/100
 
-# Initialize serial communication (make sure the port matches your setup)
-ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)  # Replace ttyUSB0 with the actual port
-time.sleep(2)  # Give some time to establish the connection
+
 
 def set_servo_angle(angle, boom):
     """

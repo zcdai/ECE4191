@@ -206,10 +206,10 @@ class BallerRover():
 
     def box_reverse(self):
         # find distance to box
-        distance = get_distance() * 0.9
+        distance = get_distance()
         while distance > 0.03:
-            self.drive('B', distance)
-            distance = get_distance() * 0.9
+            self.drive('B', distance*0.9)
+            distance = get_distance()
 
 if __name__ == '__main__':
     bot = BallerRover()
@@ -218,6 +218,7 @@ if __name__ == '__main__':
 
     # bot.return_to_origin()
 
-    bot.drive('F', 1)
+    bot.probe()
+    print(bot.ball_pos)
 
 
