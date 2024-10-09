@@ -181,8 +181,7 @@ class BallerRover():
             print(f"Distance to object: {distance_to_object}")
             self.rotate(np.degrees(angle_to_object))
             return distance_to_object
-        else:
-            self.probe()
+
 
     def pickup_ball(self):
         set_servo_angle(180, False)

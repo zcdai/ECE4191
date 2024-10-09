@@ -13,12 +13,14 @@ def m2(bot: BallerRover):
         bot.probe()
         bot.direct_path(bot.get_closest_ball(), shortstop=True)
         ball_distance = bot.center_ball()
-        bot.drive('F', ball_distance + 0.1) # overshoot ball a little bit
-        bot.pickup_ball()
-        collected_count += 1
-        if collected_count == 4:
-            bot.deposit_ball()
-            collected_count = 0
+
+        if ball_distance is not None:
+            bot.drive('F', ball_distance + 0.1) # overshoot ball a little bit
+            bot.pickup_ball()
+            collected_count += 1
+            if collected_count == 4:
+                bot.deposit_ball()
+                collected_count = 0
 
  
 if __name__ == "__main__":
