@@ -128,7 +128,7 @@ class BallerRover():
         self.angle += angle_delta
         self.angle = self.angle % 360
 
-    def drive(self, direction='F', distance=1):
+    def drive(self, direction='F', distance=1, modifier='M'):
         #TODO: find constant for forward and rotation
         forward_const = 1200
         rotation_const = 647/180
@@ -138,7 +138,7 @@ class BallerRover():
             ticks = distance*forward_const
 
 
-        send_command(direction, ticks)
+        send_command(direction, ticks, modifier)
         if direction == 'F':
             dx = distance * np.cos(np.radians(self.angle))
             dy = distance * np.sin(np.radians(self.angle))
@@ -214,8 +214,8 @@ class BallerRover():
 
 if __name__ == '__main__':
     bot = BallerRover()
-    bot.box_reverse()
-    bot.lift_boom()
+    bot.drive()
+    bot.drive('B', 1, 'S')
 
     # bot.probe()
 

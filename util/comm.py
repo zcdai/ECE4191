@@ -74,8 +74,8 @@ def set_servo_angle(angle, boom):
 set_servo_angle(0, False)
 set_servo_angle(0, True)
 
-def send_command(dir='F', ticks='500'):
-    command = f"{dir}{ticks}"
+def send_command(dir='F', ticks='500', modifier='M'):
+    command = f"{dir}{ticks}{modifier}"
     print(f"Sending: {command}")
     ser.write((command + '\n').encode())  # Send the command over serial
     _wait_for_confirmation(command)
