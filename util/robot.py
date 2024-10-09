@@ -17,7 +17,7 @@ class BallerRover():
         self.pos = pos
         self.angle = angle
         self.ball_pos = []
-        self.court_boundary = [[0, 4], [0, 5.4]]
+        self.court_boundary = [[-0.2, 4.2], [0, 5.4]]
         self.deposit_pos = [3.8, 5.4]
         self.deposit_angle = 180
 
@@ -56,7 +56,7 @@ class BallerRover():
 
         target_poses = []
         distances = []
-
+        sorted_targets_with_distances = []
         for detection in bounding_boxes:
             target_pose, _ = estimate_pose(camera_matrix, detection, robot_pose)
             print(f"Detected {detection[0]} at {target_pose}")
@@ -67,17 +67,19 @@ class BallerRover():
             dy = target_pose[1] - self.pos[1]
             distance = np.sqrt(dx**2 + dy**2)
             distances.append(distance)
-            # Combine target poses with their distances
-            targets_with_distances = list(zip(target_poses, distances))
 
-            # Sort targets by distance (closest first)
-            sorted_targets_with_distances = sorted(targets_with_distances, key=lambda x: x[1])
 
-            # Extract sorted target poses
-            sorted_target_poses = [target[0] for target in sorted_targets_with_distances]
-            if len(sorted_target_poses) > 2:
-                # Delete all elements except the first one
-                sorted_target_poses = sorted_target_poses[:1]
+        # Combine target poses with their distances
+        target_with_distances = list(zip(target_poses, distances))
+
+        # Sort targets by distance (closest first)
+        sorted_targets_with_distances = sorted(target_with_distances, key=lambda x: x[1])
+
+        # Extract sorted target poses
+        sorted_target_poses = [target[0] for target in sorted_targets_with_distances]
+        if len(sorted_target_poses) >= 2:
+            # Delete all elements except the first one
+            sorted_target_poses = sorted_target_poses[:1]
 
         return sorted_target_poses
 
@@ -214,6 +216,5 @@ if __name__ == '__main__':
     # bot.return_to_origin()
 
     bot.probe()
-    print(bot.ball_pos)
 
 
