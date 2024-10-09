@@ -12,13 +12,13 @@ from picamera2 import Picamera2
 
 
 class BallerRover():
-    def __init__(self, pos=[0, 0], angle=90, bottom_left=True):
+    def __init__(self, pos=[0, 0], angle=90):
         self.origin = pos
         self.pos = pos
         self.angle = angle
         self.ball_pos = []
         self.court_boundary = [[-0.2, 4.2], [0, 5.4]]
-        self.deposit_pos = [3.8, 5.4]
+        self.deposit_pos = [3.7, 5.4]
         self.deposit_angle = 180
 
         self.camera = Picamera2()
