@@ -19,7 +19,7 @@ class BallerRover():
         self.ball_pos = []
         self.court_boundary = [[-0.2, 4.2], [0, 5.4]]
         self.deposit_pos = [3.7, 4.9] # TODO: Find optimal coordinates
-        self.deposit_angle = 180
+        self.deposit_angle = 270
 
         self.camera = Picamera2()
         config = self.camera.create_preview_configuration(main={"size": (1280, 720),'format': 'RGB888'})
