@@ -67,7 +67,7 @@ def set_servo_angle(angle, boom):
         pwm_scoop.ChangeDutyCycle(duty_cycle)
         duty_cycle -= 4
         duty_cycle = max(duty_cycle, 2)
-        time.sleep(1.8)  # Allow time for the servo to move to the position
+        time.sleep(1.9)  # Allow time for the servo to move to the position
         pwm_scoop.ChangeDutyCycle(0)  # Stop sending the PWM signal to avoid jitter
 
 
@@ -91,7 +91,3 @@ def _wait_for_confirmation(expected_command):
                 confirmation_count += 1   
                 
     print(f"Confirmation {confirmation_count}/{confirmations_needed} received for {expected_command}")
-
-if __name__ == '__main__':
-    while True:
-        get_distance()
