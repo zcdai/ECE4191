@@ -159,14 +159,19 @@ class BallerRover():
             and self.court_boundary[1][0] < ball[1] < self.court_boundary[1][1]:
                 self.ball_pos.append(ball)
 
-        
-        while not self.ball_pos:  # Rotate in 35 degree increments
+        spin_count = 0
+        while not self.ball_pos:  # Rotate in 3 degree increments
+            if spin_count == 8:
+                spin_count = 0
+                self.direct_path([2, 2])
+                continue
             self.rotate(-30)
             balls = self.get_image()
             for ball in balls:
                 if self.court_boundary[0][0] < ball[0] < self.court_boundary[0][1] \
                 and self.court_boundary[1][0] < ball[1] < self.court_boundary[1][1]:
                     self.ball_pos.append(ball)
+            spin_count += 1
 
 
 
