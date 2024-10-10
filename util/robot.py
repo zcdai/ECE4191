@@ -226,7 +226,24 @@ class BallerRover():
             distance = get_distance()
 
         self.drive('B', min(0.03, distance))
-        
+  
+def wiggle(self):
+    self.rotate(-30)
+    distance = get_distance()
+    if distance <= 1:
+        x_box_delta, y_box_delta = np.cos(60) * distance, np.sin(60) * distance 
+        x_box, y_box = self.pos[0] + x_box_delta, self.pos[1] + y_box_delta
+        self.deposit_pos = [x_box, y_box - 0.15]
+        return
+    self.rotate(60)
+    distance = get_distance()
+    if distance <= 1:
+        x_box_delta, y_box_delta = -np.cos(60) * distance, np.sin(60) * distance 
+        x_box, y_box = self.pos[0] + x_box_delta, self.pos[1] + y_box_delta
+        self.deposit_pos = [x_box, y_box - 0.15]
+        return     
+    
+    
 
 if __name__ == '__main__':
     bot = BallerRover()
