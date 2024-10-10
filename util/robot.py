@@ -18,8 +18,8 @@ class BallerRover():
         self.angle = angle
         self.ball_pos = []
         self.court_boundary = [[-0.2, 4.2], [0, 5.4]]
-        self.deposit_pos = [3.7, 5.4] # TODO: Find optimal coordinates
-        self.deposit_angle = 270
+        self.deposit_pos = [3.7, 4.9] # TODO: Find optimal coordinates
+        self.deposit_angle = 180
 
         self.camera = Picamera2()
         config = self.camera.create_preview_configuration(main={"size": (1280, 720),'format': 'RGB888'})
@@ -212,12 +212,13 @@ class BallerRover():
                 self.rotate(-30)
                 distance = get_distance()
                 if distance <= 1:
-                    continue
+                    continue  # Continue reversing as box is now detected
 
+                # Rotate 60 degrees to the right (30 + 30) and check again
                 self.rotate(60)
                 distance = get_distance()
                 if distance <= 1:
-                    continue
+                    continue  # Continue reversing as box is now detected
 
                 # If the box is still not detected, rotate back to original position
                 self.rotate(-30)
@@ -229,8 +230,10 @@ class BallerRover():
 
 if __name__ == '__main__':
     bot = BallerRover()
-    bot.box_reverse()
-    bot.lift_boom()
+    #bot.box_reverse()
+    #bot.lift_boom()
+
+    bot.drive(direction='F', distance=5.4, modifier='M')
 
     # bot.probe()
 
