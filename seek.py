@@ -18,7 +18,7 @@ def m2(bot: BallerRover):
             bot.drive('F', ball_distance + 0.1, modifier='S') # overshoot ball a little bit
             bot.pickup_ball()
             collected_count += 1
-            if collected_count == 4:
+            if collected_count == 3:
                 bot.deposit_ball()
                 bot.direct_path([2.5, 3.5])
                 collected_count = 0
