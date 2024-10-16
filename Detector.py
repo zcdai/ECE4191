@@ -82,6 +82,10 @@ if __name__ == '__main__':
     # Initialize the YOLO model
     yolo = Detector('/home/ECE4191/ECE4191/YOLO/Model/best.pt')
 
+    # Set up the folder to save the calibration images
+    save_folder ='Model_Images'
+    os.makedirs(save_folder, exist_ok=True)
+
     # Initialize the PiCamera
     camera = Picamera2()
     # Configure the camera
@@ -91,6 +95,7 @@ if __name__ == '__main__':
     # Start the camera
     camera.start()
 
+    image_count = 0
     while True:
         # Capture a frame
         frame = camera.capture_array()
@@ -100,6 +105,13 @@ if __name__ == '__main__':
 
         # Display the output with detected bounding boxes
         cv2.imshow('YOLO Detection', img_out)
+
+        # Press 's' to save the image and object points
+        if key == ord('s') and ret:
+        image_filename = os.path.join(save_folder, f'image_{image_count:03d}.jpg')
+        cv2.imwrite(image_filename, img_out)
+        print(f'Saved {image_filename}')
+        image_count += 1
 
         # Break the loop if 'q' is pressed
         if cv2.waitKey(1) & 0xFF == ord('q'): 
