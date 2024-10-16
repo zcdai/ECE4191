@@ -22,6 +22,8 @@ def m2(bot: BallerRover):
                 bot.deposit_ball()
                 bot.direct_path([2.5, 3.5])
                 collected_count = 0
+        else:
+            bot.pickup_ball()
 
  
 if __name__ == "__main__":

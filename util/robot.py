@@ -59,14 +59,18 @@ class BallerRover():
         sorted_targets_with_distances = []
         for detection in bounding_boxes:
             target_pose, _ = estimate_pose(camera_matrix, detection, robot_pose)
-            print(f"Detected {detection[0]} at {target_pose}")
-            target_poses.append(target_pose)
+            
+
 
             # Calculate distance from the robot to the target
-            dx = target_pose[0] - self.pos[0]
-            dy = target_pose[1] - self.pos[1]
-            distance = np.sqrt(dx**2 + dy**2)
-            distances.append(distance)
+            dx = target_pose[0] - robot_pose[0]
+            dy = target_pose[1] - robot_pose[1]
+            distance = np.hypot(dx, dy)
+            if distance < 3:
+                distances.append(distance)
+                target_poses.append(target_pose)
+                print(f"Detected {detection[0]} at {target_pose}, Distance: {distance}")
+
 
 
         # Combine target poses with their distances
@@ -159,14 +163,19 @@ class BallerRover():
             and self.court_boundary[1][0] < ball[1] < self.court_boundary[1][1]:
                 self.ball_pos.append(ball)
 
-        
-        while not self.ball_pos:  # Rotate in 35 degree increments
+        spin_count = 0
+        while not self.ball_pos:  # Rotate in 3 degree increments
+            if spin_count == 8:
+                spin_count = 0
+                self.direct_path([2, 2])
+                continue
             self.rotate(-30)
             balls = self.get_image()
             for ball in balls:
                 if self.court_boundary[0][0] < ball[0] < self.court_boundary[0][1] \
                 and self.court_boundary[1][0] < ball[1] < self.court_boundary[1][1]:
                     self.ball_pos.append(ball)
+            spin_count += 1
 
 
 
@@ -181,6 +190,7 @@ class BallerRover():
             print(f"Distance to object: {distance_to_object}")
             self.rotate(np.degrees(angle_to_object))
             return distance_to_object
+        
 
 
     def pickup_ball(self):
@@ -204,44 +214,37 @@ class BallerRover():
         distance = get_distance()
         while distance > 0.07:
             if distance <= 1:
-
                 self.drive('B', distance*0.7)
             else:
                 # Butt wiggle to find the box
-                # Rotate 30 degrees to the left and check distance
-                self.rotate(-30)
-                distance = get_distance()
-                if distance <= 1:
-                    continue  # Continue reversing as box is now detected
+                new_pos = self.wiggle()
+                if new_pos is not None:
+                    self.direct_path(self.deposit_pos)
+                    self.set_angle(self.deposit_angle)
+                else:
+                    bot.lift_boom()
 
-                # Rotate 60 degrees to the right (30 + 30) and check again
-                self.rotate(60)
-                distance = get_distance()
-                if distance <= 1:
-                    continue  # Continue reversing as box is now detected
-
-                # If the box is still not detected, rotate back to original position
-                self.rotate(-30)
-                return
             distance = get_distance()
 
         self.drive('B', min(0.03, distance))
   
-def wiggle(self):
-    self.rotate(-30)
-    distance = get_distance()
-    if distance <= 1:
-        x_box_delta, y_box_delta = np.cos(60) * distance, np.sin(60) * distance 
-        x_box, y_box = self.pos[0] + x_box_delta, self.pos[1] + y_box_delta
-        self.deposit_pos = [x_box, y_box - 0.15]
-        return
-    self.rotate(60)
-    distance = get_distance()
-    if distance <= 1:
-        x_box_delta, y_box_delta = -np.cos(60) * distance, np.sin(60) * distance 
-        x_box, y_box = self.pos[0] + x_box_delta, self.pos[1] + y_box_delta
-        self.deposit_pos = [x_box, y_box - 0.15]
-        return     
+    def wiggle(self):
+        self.direct_path([self.pos[0] + 0.4, self.pos[1]])
+        self.set_angle(270)
+        distance = get_distance()
+        if distance <= 1:
+            x_box_delta, y_box_delta = np.cos(60) * distance, np.sin(60) * distance 
+            x_box, y_box = self.pos[0] + x_box_delta, self.pos[1] + y_box_delta
+            self.deposit_pos = [x_box, y_box - 0.15]
+            return[x_box, y_box - 0.15]
+        self.direct_path([self.pos[0] - 0.8, self.pos[1]])
+        self.set_angle(270)
+        distance = get_distance()
+        if distance <= 1:
+            x_box_delta, y_box_delta = -np.cos(60) * distance, np.sin(60) * distance 
+            x_box, y_box = self.pos[0] + x_box_delta, self.pos[1] + y_box_delta
+            self.deposit_pos = [x_box, y_box - 0.15]
+            return[x_box, y_box - 0.15]     
     
     
 
@@ -250,8 +253,7 @@ if __name__ == '__main__':
     #bot.box_reverse()
     #bot.lift_boom()
 
-    bot.drive(direction='F', distance=5.4, modifier='M')
-
-    # bot.probe()
-
+    bot.wiggle()
+    # while True:
+    #     get_distance()
 
